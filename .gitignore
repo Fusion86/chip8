@@ -1,0 +1,7 @@
+# CMake
+bin/
+build/
+
+# VSCode
+.cmaketools.json
+settings.json

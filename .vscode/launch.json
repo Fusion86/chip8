@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(lldb) chip8gl",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bin/chip8gl",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) cli8",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/bin/cli8",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}
