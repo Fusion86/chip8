@@ -18,7 +18,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/bin/cli8",
-            "args": [],
+            "args": ["disassemble", "roms/PONG"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}/bin",
             "environment": [],
