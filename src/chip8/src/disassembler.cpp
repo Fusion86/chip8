@@ -99,6 +99,9 @@ namespace CHIP8
                 case 0x07:
                     snprintf(buffer, buffer_size, "LD v%X, DT", X);
                     return 0;
+                case 0x0A:
+                    snprintf(buffer, buffer_size, "LD v%X, K", X);
+                    return 0;
                 case 0x15:
                     snprintf(buffer, buffer_size, "LD DT, v%X", X);
                     return 0;
