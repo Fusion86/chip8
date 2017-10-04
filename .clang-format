@@ -19,5 +19,5 @@ AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
 CompactNamespaces: true
-PointerAlignment: Left
+PointerAlignment: Right
 SortIncludes: false

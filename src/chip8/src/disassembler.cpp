@@ -8,97 +8,125 @@ namespace CHIP8
 {
     namespace Disassembler
     {
-        void Disassemble(FILE* output, uint8_t* rom, uint32_t size)
+        void Disassemble(FILE *output, uint8_t *rom, uint32_t size, std::vector<uint16_t> *missing_opcodes)
         {
             uint16_t opcode;
             char asm_str[64];
-            int16_t padding;
+            int padding;
+            int opcode_to_asm_result;
 
             for (int i = 0; i < size; i += 2) {
                 opcode = rom[i] << 8 | rom[i + 1];
-                OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
+                opcode_to_asm_result = OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
                 padding = COMMENT_PADDING_WIDTH - (int)strlen(asm_str);
                 if (padding < 0) padding = 0;
-                fprintf(output, "%s %*s; %X    op: %04X\n", asm_str, padding, "", i, opcode);
+                fprintf(output, "%s %*s; %X (%i)    op: %04X\n", asm_str, padding, "", i, i, opcode);
+
+                if (missing_opcodes != nullptr && opcode_to_asm_result == 1) {
+                    if (std::find(missing_opcodes->begin(), missing_opcodes->end(), opcode) == missing_opcodes->end()) {
+                        missing_opcodes->push_back(opcode);
+                    }
+                }
             }
         }
 
-        void OpcodeToAsmString(uint16_t opcode, char* buffer, uint32_t buffer_size)
+        int OpcodeToAsmString(uint16_t opcode, char *buffer, uint32_t buffer_size)
         {
             switch (opcode & 0xF000) {
             case 0x0000:
                 switch (opcode) {
                 case 0x00E0:
                     snprintf(buffer, buffer_size, "CLS");
-                    break;
+                    return 0;
                 case 0x00EE:
                     snprintf(buffer, buffer_size, "RET");
-                    break;
+                    return 0;
                 default:
                     snprintf(buffer, buffer_size, "SYS %X", NNN);
-                    break;
+                    return 0;
                 }
-                break;
+                return 0;
             case 0x1000:
                 snprintf(buffer, buffer_size, "JP %X", NNN);
-                break;
+                return 0;
             case 0x2000:
                 snprintf(buffer, buffer_size, "CALL %X", NNN);
-                break;
+                return 0;
             case 0x3000:
                 snprintf(buffer, buffer_size, "SE v%X, %X", X, KK);
-                break;
+                return 0;
             case 0x4000:
                 snprintf(buffer, buffer_size, "SNE v%X, %X", X, KK);
-                break;
+                return 0;
             case 0x5000:
                 snprintf(buffer, buffer_size, "SE v%X, v%X", X, Y);
-                break;
+                return 0;
             case 0x6000:
                 snprintf(buffer, buffer_size, "LD v%X, %i", X, KK);
-                break;
+                return 0;
             case 0x7000:
                 snprintf(buffer, buffer_size, "ADD v%X, %X", X, KK);
-                break;
+                return 0;
             case 0x8000:
                 switch (N) {
                 case 0x0:
                     snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
-                    break;
+                    return 0;
                 }
-                break;
+                return 0;
             case 0xA000:
                 snprintf(buffer, buffer_size, "LD I, %X", NNN);
-                break;
+                return 0;
             case 0xC000:
                 snprintf(buffer, buffer_size, "RND v%X, %X", X, KK);
-                break;
+                return 0;
             case 0xD000:
                 snprintf(buffer, buffer_size, "DRW v%X, v%X, %i", X, Y, N);
-                break;
+                return 0;
             case 0xE000:
                 switch (KK) {
+                case 0x9E:
+                    snprintf(buffer, buffer_size, "SKP v%X", X);
+                    return 0;
                 case 0xA1:
                     snprintf(buffer, buffer_size, "SKNP v%X", X);
-                    break;
-                default: goto unknown_opcode; break;
+                    return 0;
+                default: goto unknown_opcode;
                 }
-                break;
+                return 0;
             case 0xF000:
                 switch (KK) {
                 case 0x07:
                     snprintf(buffer, buffer_size, "LD v%X, DT", X);
-                    break;
+                    return 0;
                 case 0x15:
                     snprintf(buffer, buffer_size, "LD DT, v%X", X);
-                    break;
-                default: goto unknown_opcode; break;
+                    return 0;
+                case 0x18:
+                    snprintf(buffer, buffer_size, "LD ST, v%X", X);
+                    return 0;
+                case 0x1E:
+                    snprintf(buffer, buffer_size, "ADD I, v%X", X);
+                    return 0;
+                case 0x29:
+                    snprintf(buffer, buffer_size, "LD F, v%X", X);
+                    return 0;
+                case 0x33:
+                    snprintf(buffer, buffer_size, "LD B, v%X", X);
+                    return 0;
+                case 0x55:
+                    snprintf(buffer, buffer_size, "LD [I], v%X", X);
+                    return 0;
+                case 0x65:
+                    snprintf(buffer, buffer_size, "LD v%X, [I]", X);
+                    return 0;
+                default: goto unknown_opcode;
                 }
-                break;
+                return 0;
             default:
             unknown_opcode:
                 snprintf(buffer, buffer_size, "UNKNOWN");
-                break;
+                return 1;
             }
         }
     }

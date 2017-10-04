@@ -1,5 +1,7 @@
 #include <string>
 
+#include <vector>
+
 #include "stdio.h"
 
 #include "chip8/chip8.h"
@@ -7,7 +9,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     printf("cli8 v%s\n", cli8_VERSION);
 
@@ -26,19 +28,30 @@ int main(int argc, char** argv)
             return 1;
         }
 
-        FILE* file = fopen(argv[2], "rb");
+        FILE *file = fopen(argv[2], "rb");
 
         if (file == NULL) {
             puts("File not found!");
             return 1;
         }
 
-        uint8_t* buffer; // Remember to free()
+        uint8_t *buffer; // Remember to free()
         uint32_t buffer_size;
         CHIP8::LoadRom(file, &buffer, &buffer_size);
         printf("Loaded: %s\nROM size: %u bytes\n", argv[2], buffer_size);
 
-        CHIP8::Disassembler::Disassemble(stdout, buffer, buffer_size);
+        std::vector<uint16_t> missing_opcodes;
+        CHIP8::Disassembler::Disassemble(stdout, buffer, buffer_size, &missing_opcodes);
+
+        if (!missing_opcodes.empty()) {
+            printf("Missing opcodes: ");
+            for (auto &missing_opcode : missing_opcodes) {
+                printf("%04X ", missing_opcode);
+            }
+            puts(""); // Last newline
+        }
+
+        free(buffer);
 
         return 0;
     } else {
