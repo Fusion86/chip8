@@ -9,12 +9,6 @@
 
 #include "chip8/emulator.h"
 
-#ifdef DEBUG
-#define SHOW_TEST_WINDOW true
-#else
-#define SHOW_TEST_WINDOW false
-#endif
-
 using namespace CHIP8::Emulator;
 
 static CHIP8Emulator *chip = new CHIP8Emulator();
@@ -49,10 +43,10 @@ int main()
 #endif
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *window = glfwCreateWindow(800, 600, "CCHIP-8", NULL, NULL);
-    glfwMakeContextCurrent(window);
+    GLFWwindow *pWindow = glfwCreateWindow(800, 600, "CCHIP-8", NULL, NULL);
+    glfwMakeContextCurrent(pWindow);
 
-    if (window == NULL)
+    if (pWindow == NULL)
     {
         printf("Failed to create GLFW window\n");
         glfwTerminate();
@@ -69,65 +63,87 @@ int main()
     }
 
     // Setup ImGui binding
-    ImGui_ImplGlfwGL3_Init(window, true);
-
-    bool show_test_window = SHOW_TEST_WINDOW;
+    ImGui_ImplGlfwGL3_Init(pWindow, true);
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // Setup extra ImGui stuff
-    static bool wnd_main_visible = true;
-    static MemoryEditor ram_mem_edit;
+    // ImGui windows
+    static bool show_app_main = true;
+    static bool show_app_ram_edit = false;
+
+    static MemoryEditor frame_ram_mem_edit;
+
+#ifndef NDEBUG
+    static bool show_app_test = true;
+#else
+    static bool show_app_test = false;
+#endif
 
     //
     // Main Loop
     //
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(pWindow))
     {
         glfwPollEvents();
 
         ImGui_ImplGlfwGL3_NewFrame();
 
+        // Menu bar
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Windows"))
+            {
+                ImGui::MenuItem("Show main window", NULL, &show_app_main);
+                ImGui::MenuItem("Show RAM explorer", NULL, &show_app_ram_edit);
+                ImGui::MenuItem("Show test window", NULL, &show_app_test);
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+        }
+
         // Main Window
         ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
-        ImGui::Begin("CHIP-8", &wnd_main_visible);
-        if (chip->IsInitialized)
+        if (ImGui::Begin("CHIP-8", &show_app_main) && show_app_main)
         {
-            ImGui::TextUnformatted("Waddup");
-        } else
-        {
-            ImGui::TextUnformatted("Not initialized :(");
-
-            if (ImGui::Button("Initialize"))
+            if (chip->IsInitialized)
             {
-                chip->Initialize();
+                ImGui::TextUnformatted("Waddup");
+            } else
+            {
+                ImGui::TextUnformatted("Not initialized");
+
+                if (ImGui::Button("Initialize"))
+                {
+                    chip->Initialize();
+                }
             }
+            ImGui::End();
         }
-        ImGui::End();
 
         // Memory Editors (RAM and display)
-        if (chip->IsInitialized)
+        if (chip->IsInitialized && show_app_ram_edit)
         {
             ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
-            ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
+            frame_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
         }
 
-        if (show_test_window)
+        if (show_app_test)
         {
             ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
-            ImGui::ShowTestWindow(&show_test_window);
+            ImGui::ShowTestWindow(&show_app_test);
         }
 
         // Rendering
         int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glfwGetFramebufferSize(pWindow, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui::Render();
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(pWindow);
     }
 
     // Terminates GLFW, clearing any resources allocated by GLFW.
