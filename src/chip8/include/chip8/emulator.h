@@ -28,6 +28,8 @@ namespace Emulator
 
         // uint8_t Key[16];
 
+        CHIP8Emulator();
+
         int Initialize();
         int LoadGame();
         int EmulateCycle();

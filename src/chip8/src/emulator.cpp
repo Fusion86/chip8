@@ -2,23 +2,30 @@
 
 namespace CHIP8
 {
-namespace Emulator
-{
-    int CHIP8Emulator::Initialize()
+    namespace Emulator
     {
-        return 0;
-    }
+        CHIP8Emulator::CHIP8Emulator()
+        {
+            this->IsInitialized = false;
+        }
 
-    int CHIP8Emulator::LoadGame()
-    {
-        return 0;
-    }
+        int CHIP8Emulator::Initialize()
+        {
+            this->IsInitialized = true;
 
-    int CHIP8Emulator::EmulateCycle()
-    {
-        Opcode = Memory[Pc] << 8 | Memory[Pc + 1];
+            return 0;
+        }
 
-        return 0;
+        int CHIP8Emulator::LoadGame()
+        {
+            return 0;
+        }
+
+        int CHIP8Emulator::EmulateCycle()
+        {
+            Opcode = Memory[Pc] << 8 | Memory[Pc + 1];
+
+            return 0;
+        }
     }
-}
 }
