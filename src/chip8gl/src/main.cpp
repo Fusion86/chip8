@@ -17,9 +17,9 @@
 
 using namespace CHIP8::Emulator;
 
-static CHIP8Emulator* chip = new CHIP8Emulator();
+static CHIP8Emulator *chip = new CHIP8Emulator();
 
-static void error_callback(int error, const char* description)
+static void error_callback(int error, const char *description)
 {
     printf("Error %d: %s\n", error, description);
 }
@@ -49,8 +49,9 @@ int main()
 #endif
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow* window = glfwCreateWindow(800, 600, "CCHIP-8", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "CCHIP-8", NULL, NULL);
     glfwMakeContextCurrent(window);
+
     if (window == NULL)
     {
         printf("Failed to create GLFW window\n");
@@ -75,7 +76,6 @@ int main()
 
     // Setup extra ImGui stuff
     static bool wnd_main_visible = true;
-
     static MemoryEditor ram_mem_edit;
 
     //

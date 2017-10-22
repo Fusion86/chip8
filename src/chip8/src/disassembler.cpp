@@ -15,15 +15,18 @@ namespace CHIP8
             int padding;
             int opcode_to_asm_result;
 
-            for (int i = 0; i < size; i += 2) {
+            for (int i = 0; i < size; i += 2)
+            {
                 opcode = rom[i] << 8 | rom[i + 1];
                 opcode_to_asm_result = OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
                 padding = COMMENT_PADDING_WIDTH - (int)strlen(asm_str);
                 if (padding < 0) padding = 0;
                 fprintf(output, "%s %*s; %X (%i)    op: %04X\n", asm_str, padding, "", i, i, opcode);
 
-                if (missing_opcodes != nullptr && opcode_to_asm_result == 1) {
-                    if (std::find(missing_opcodes->begin(), missing_opcodes->end(), opcode) == missing_opcodes->end()) {
+                if (missing_opcodes != nullptr && opcode_to_asm_result == 1)
+                {
+                    if (std::find(missing_opcodes->begin(), missing_opcodes->end(), opcode) == missing_opcodes->end())
+                    {
                         missing_opcodes->push_back(opcode);
                     }
                 }
@@ -32,9 +35,11 @@ namespace CHIP8
 
         int OpcodeToAsmString(uint16_t opcode, char *buffer, uint32_t buffer_size)
         {
-            switch (opcode & 0xF000) {
+            switch (opcode & 0xF000)
+            {
             case 0x0000:
-                switch (opcode) {
+                switch (opcode)
+                {
                 case 0x00E0:
                     snprintf(buffer, buffer_size, "CLS");
                     return 0;
@@ -68,7 +73,8 @@ namespace CHIP8
                 snprintf(buffer, buffer_size, "ADD v%X, %X", X, KK);
                 return 0;
             case 0x8000:
-                switch (N) {
+                switch (N)
+                {
                 case 0x0:
                     snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
                     return 0;
@@ -84,7 +90,8 @@ namespace CHIP8
                 snprintf(buffer, buffer_size, "DRW v%X, v%X, %i", X, Y, N);
                 return 0;
             case 0xE000:
-                switch (KK) {
+                switch (KK)
+                {
                 case 0x9E:
                     snprintf(buffer, buffer_size, "SKP v%X", X);
                     return 0;
@@ -95,7 +102,8 @@ namespace CHIP8
                 }
                 return 0;
             case 0xF000:
-                switch (KK) {
+                switch (KK)
+                {
                 case 0x07:
                     snprintf(buffer, buffer_size, "LD v%X, DT", X);
                     return 0;

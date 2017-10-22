@@ -11,5 +11,5 @@
 
 namespace CHIP8
 {
-    void LoadRom(FILE* file, uint8_t** buffer, uint32_t* size);
+    void LoadRom(FILE *file, uint8_t **buffer, uint32_t *size);
 }

@@ -10,8 +10,8 @@ namespace CHIP8
 {
     namespace Disassembler
     {
-        void Disassemble(FILE* output, uint8_t* rom, uint32_t size, std::vector<uint16_t>* missing_opcodes = nullptr);
+        void Disassemble(FILE *output, uint8_t *rom, uint32_t size, std::vector<uint16_t> *missing_opcodes = nullptr);
 
-        int OpcodeToAsmString(uint16_t opcode, char* buffer, uint32_t buffer_size);
+        int OpcodeToAsmString(uint16_t opcode, char *buffer, uint32_t buffer_size);
     }
 }
