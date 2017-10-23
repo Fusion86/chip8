@@ -69,14 +69,9 @@ int main()
     // ImGui windows
     static bool show_app_main = true;
     static bool show_app_ram_edit = false;
-
-    static MemoryEditor frame_ram_mem_edit;
-
-#ifndef NDEBUG
-    static bool show_app_test = true;
-#else
     static bool show_app_test = false;
-#endif
+
+    static MemoryEditor widget_ram_mem_edit;
 
     //
     // Main Loop
@@ -103,34 +98,59 @@ int main()
         }
 
         // Main Window
-        ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("CHIP-8", &show_app_main) && show_app_main)
+        if (show_app_main)
         {
-            if (chip->IsInitialized)
+            ImGui::SetNextWindowSize(ImVec2(150, 560), ImGuiCond_FirstUseEver);
+            if (ImGui::Begin("CHIP-8", &show_app_main))
             {
-                ImGui::TextUnformatted("Waddup");
-            } else
-            {
-                ImGui::TextUnformatted("Not initialized");
-
-                if (ImGui::Button("Initialize"))
+                if (chip->IsInitialized)
                 {
-                    chip->Initialize();
+                    ImGui::Text("Opcode: %04X", chip->Opcode);
+                    ImGui::Text("I: %04X (%d)", chip->I, chip->I);
+                    ImGui::Text("Pc: %04X (%d)", chip->Pc, chip->Pc);
+                    ImGui::Text("Sp: %04X (%d)", chip->Sp, chip->Sp);
+                    ImGui::Text("DelayTimer: %04X (%d)", chip->DelayTimer, chip->DelayTimer);
+                    ImGui::Text("DelayTimer: %04X (%d)", chip->SoundTimer, chip->SoundTimer);
+
+                    if (ImGui::CollapsingHeader("Registers"))
+                    {
+                        for (int i = 0; i < sizeof(chip->V) / sizeof(chip->V[0]); i++)
+                        {
+                            ImGui::Text("V%X: %X (%d)", i, chip->V[i], chip->V[i]);
+                        }
+                    }
+
+                    if (ImGui::CollapsingHeader("Stack"))
+                    {
+                        for (int i = 0; i < sizeof(chip->Stack) / sizeof(chip->Stack[0]); i++)
+                        {
+                            ImGui::Text("%i: %02X (%d)", i, chip->Stack[i], chip->Stack[i]);
+                        }
+                    }
+                } else
+                {
+                    ImGui::TextUnformatted("Not initialized");
+
+                    if (ImGui::Button("Initialize"))
+                    {
+                        chip->Initialize();
+                    }
                 }
             }
             ImGui::End();
         }
 
-        // Memory Editors (RAM and display)
-        if (chip->IsInitialized && show_app_ram_edit)
+        // RAM Explorer
+        if (show_app_ram_edit)
         {
             ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
-            frame_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
+            widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
         }
 
+        // Test/demo window
         if (show_app_test)
         {
-            ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+            // ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
             ImGui::ShowTestWindow(&show_app_test);
         }
 
