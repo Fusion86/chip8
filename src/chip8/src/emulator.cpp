@@ -1,5 +1,7 @@
 #include "chip8/emulator.h"
 
+#include "chip8/disassembler.h"
+
 #include <string.h>
 
 namespace CHIP8
@@ -21,24 +23,146 @@ namespace CHIP8
 
         int CHIP8Emulator::LoadGame(uint8_t *buffer, uint32_t buffer_size)
         {
-            AsmLog->AddLog("[info] Loading rom...");
+            ADD_LOG("[info] [loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
 
-            AsmLog->AddLog(" OK (size %d)\n", buffer_size);
+            ADD_LOG(" OK (size %d)\n", buffer_size);
 
             Pc = PC_START;
-            AsmLog->AddLog("[info] Set pc to 0x%04X (%d)\n", Pc, Pc);
+            ADD_LOG("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
             return 0;
         }
 
         int CHIP8Emulator::EmulateCycle()
         {
-            Opcode = Memory[Pc] << 8 | Memory[Pc + 1];
+            uint16_t opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
+            Opcode = opcode; // Save opcode in class
 
-            AsmLog->AddLog("[debug] Opcode: %04X\n", Opcode);
+            //
+            // AsmLog
+            //
 
-            return 0;
+            char asm_str[64];
+            CHIP8::Disassembler::OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
+
+            ADD_LOG("[debug] [emulatecycle] Opcode: %04X\n", opcode);
+            ADD_LOG("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
+
+            //
+            // Emulate
+            //
+
+            switch (opcode & 0xF000)
+            {
+            case 0x0000:
+                switch (opcode)
+                {
+                case 0x00E0:
+                    // snprintf(buffer, buffer_size, "CLS");
+                    return 0;
+                case 0x00EE:
+                    // snprintf(buffer, buffer_size, "RET");
+                    return 0;
+                default:
+                    // snprintf(buffer, buffer_size, "SYS %X", NNN);
+                    return 0;
+                }
+                return 0;
+            case 0x1000:
+                // snprintf(buffer, buffer_size, "JP %X", NNN);
+                return 0;
+            case 0x2000:
+                // TODO: Probably broken
+                Sp++;
+                Stack[Sp] = Pc;
+                Pc = NNN;
+                return 0;
+            case 0x3000:
+                // snprintf(buffer, buffer_size, "SE v%X, %X", X, KK);
+                return 0;
+            case 0x4000:
+                // snprintf(buffer, buffer_size, "SNE v%X, %X", X, KK);
+                return 0;
+            case 0x5000:
+                // snprintf(buffer, buffer_size, "SE v%X, v%X", X, Y);
+                return 0;
+            case 0x6000:
+                V[X] = KK;
+                Pc += 2;
+                return 0;
+            case 0x7000:
+                // snprintf(buffer, buffer_size, "ADD v%X, %X", X, KK);
+                return 0;
+            case 0x8000:
+                switch (N)
+                {
+                case 0x0:
+                    // snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
+                    return 0;
+                }
+                return 0;
+            case 0xA000:
+                I = NNN;
+                Pc += 2;
+                return 0;
+            case 0xC000:
+                // snprintf(buffer, buffer_size, "RND v%X, %X", X, KK);
+                return 0;
+            case 0xD000:
+                // TODO: Skipped
+                Pc += 2;
+                return 0;
+            case 0xE000:
+                switch (KK)
+                {
+                case 0x9E:
+                    // snprintf(buffer, buffer_size, "SKP v%X", X);
+                    return 0;
+                case 0xA1:
+                    // snprintf(buffer, buffer_size, "SKNP v%X", X);
+                    return 0;
+                default: goto unknown_opcode;
+                }
+                return 0;
+            case 0xF000:
+                switch (KK)
+                {
+                case 0x07:
+                    // snprintf(buffer, buffer_size, "LD v%X, DT", X);
+                    return 0;
+                case 0x0A:
+                    // snprintf(buffer, buffer_size, "LD v%X, K", X);
+                    return 0;
+                case 0x15:
+                    // snprintf(buffer, buffer_size, "LD DT, v%X", X);
+                    return 0;
+                case 0x18:
+                    // snprintf(buffer, buffer_size, "LD ST, v%X", X);
+                    return 0;
+                case 0x1E:
+                    // snprintf(buffer, buffer_size, "ADD I, v%X", X);
+                    return 0;
+                case 0x29:
+                    // snprintf(buffer, buffer_size, "LD F, v%X", X);
+                    return 0;
+                case 0x33:
+                    // snprintf(buffer, buffer_size, "LD B, v%X", X);
+                    return 0;
+                case 0x55:
+                    // snprintf(buffer, buffer_size, "LD [I], v%X", X);
+                    return 0;
+                case 0x65:
+                    // snprintf(buffer, buffer_size, "LD v%X, [I]", X);
+                    return 0;
+                default: goto unknown_opcode;
+                }
+                return 0;
+            default:
+            unknown_opcode:
+                ADD_LOG("[debug] [emulatecycle] Unknown opcode\n");
+                return 1;
+            }
         }
 
         int CHIP8Emulator::SetAsmLog(AppLog *ptr)

@@ -77,13 +77,13 @@ int main()
     static bool show_app_test = false;
 
     static MemoryEditor widget_ram_mem_edit;
-    static AppLog asmLog;
+    static AppLog widget_asm_log;
 
     // CHIP-8 emulator options
-    static bool opt_code_step = false;
+    static bool opt_code_step = false; // If false: the code will just run like it normally would on device
 
     // Link ImGui objects with emulator
-    chip->SetAsmLog(&asmLog);
+    chip->SetAsmLog(&widget_asm_log);
 
     //
     // Main Loop
@@ -120,9 +120,12 @@ int main()
                 {
                     ImGui::Checkbox("Step through code", &opt_code_step);
 
-                    if (ImGui::Button("Continue"))
+                    if (opt_code_step)
                     {
-                        chip->EmulateCycle();
+                        if (ImGui::Button("Continue"))
+                        {
+                            chip->EmulateCycle();
+                        }
                     }
 
                     ImGui::Separator();
@@ -189,7 +192,7 @@ int main()
         // ASM Log
         if (show_app_asm_log)
         {
-            asmLog.Draw("ASM Log", &show_app_asm_log);
+            widget_asm_log.Draw("ASM Log", &show_app_asm_log);
         }
 
         // Test/demo window
@@ -198,6 +201,8 @@ int main()
             // ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
             ImGui::ShowTestWindow(&show_app_test);
         }
+
+        // TODO: Sync and run emulator here if not code stepping
 
         // Rendering
         int display_w, display_h;

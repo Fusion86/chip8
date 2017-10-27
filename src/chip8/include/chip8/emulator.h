@@ -6,6 +6,12 @@
 
 #define PC_START 0x200
 
+#define ADD_LOG(fmt, ...)                   \
+    if (AsmLog != nullptr)                     \
+    {                                       \
+        AsmLog->AddLog(fmt, ##__VA_ARGS__); \
+    }
+
 namespace CHIP8
 {
     namespace Emulator
@@ -34,11 +40,10 @@ namespace CHIP8
             AppLog *AsmLog;
 
           public:
-
             CHIP8Emulator();
 
             int Initialize();
-            int LoadGame(uint8_t* buffer, uint32_t buffer_size);
+            int LoadGame(uint8_t *buffer, uint32_t buffer_size);
             int EmulateCycle();
 
             int SetAsmLog(AppLog *ptr);
