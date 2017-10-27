@@ -6,7 +6,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 #include "imgui_memory_editor.h"
+#include "imgui_applog.h"
 
+#include "chip8/chip8.h"
 #include "chip8/emulator.h"
 
 using namespace CHIP8::Emulator;
@@ -69,9 +71,17 @@ int main()
     // ImGui windows
     static bool show_app_main = true;
     static bool show_app_ram_edit = false;
+    static bool show_app_asm_log = false;
     static bool show_app_test = false;
 
     static MemoryEditor widget_ram_mem_edit;
+    static AppLog asmLog;
+
+    // CHIP-8 emulator options
+    static bool opt_code_step = false;
+
+    // Link ImGui objects with emulator
+    chip->SetAsmLog(&asmLog);
 
     //
     // Main Loop
@@ -90,6 +100,7 @@ int main()
             {
                 ImGui::MenuItem("Show main window", NULL, &show_app_main);
                 ImGui::MenuItem("Show RAM explorer", NULL, &show_app_ram_edit);
+                ImGui::MenuItem("Show ASM log", NULL, &show_app_asm_log);
                 ImGui::MenuItem("Show test window", NULL, &show_app_test);
                 ImGui::EndMenu();
             }
@@ -105,6 +116,30 @@ int main()
             {
                 if (chip->IsInitialized)
                 {
+                    ImGui::Checkbox("Step through code", &opt_code_step);
+
+                    if (ImGui::Button("Continue"))
+                    {
+                        chip->EmulateCycle();
+                    }
+
+                    ImGui::Separator();
+
+                    if (ImGui::Button("Load rom"))
+                    {
+                        FILE *file = fopen("roms/PONG", "rb");
+                        uint8_t *buffer;
+                        uint32_t buffer_size;
+
+                        CHIP8::LoadRom(file, &buffer, &buffer_size);
+                        chip->LoadGame(buffer, buffer_size);
+
+                        fclose(file);
+                        free(buffer);
+                    }
+
+                    ImGui::Separator();
+
                     ImGui::Text("Opcode: %04X", chip->Opcode);
                     ImGui::Text("I: %04X (%d)", chip->I, chip->I);
                     ImGui::Text("Pc: %04X (%d)", chip->Pc, chip->Pc);
@@ -143,8 +178,15 @@ int main()
         // RAM Explorer
         if (show_app_ram_edit)
         {
-            ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
+            // ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
+            // TODO: Draw own window and then use DrawContents()
             widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
+        }
+
+        // ASM Log
+        if (show_app_asm_log)
+        {
+            asmLog.Draw("ASM Log", &show_app_asm_log);
         }
 
         // Test/demo window
