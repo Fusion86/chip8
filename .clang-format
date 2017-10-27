@@ -14,7 +14,7 @@ BraceWrapping:
   AfterStruct: true
   AfterUnion: true
   BeforeCatch: false
-  BeforeElse: false
+  BeforeElse: true
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false

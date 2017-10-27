@@ -19,7 +19,7 @@ namespace CHIP8
             return 0;
         }
 
-        int CHIP8Emulator::LoadGame(uint8_t* buffer, uint32_t buffer_size)
+        int CHIP8Emulator::LoadGame(uint8_t *buffer, uint32_t buffer_size)
         {
             AsmLog->AddLog("[info] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);

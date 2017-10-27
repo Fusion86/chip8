@@ -35,8 +35,10 @@ int main()
     //
 
     glfwSetErrorCallback(error_callback);
+
     if (!glfwInit())
         return 1;
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -162,7 +164,8 @@ int main()
                             ImGui::Text("%i: %02X (%d)", i, chip->Stack[i], chip->Stack[i]);
                         }
                     }
-                } else
+                }
+                else
                 {
                     ImGui::TextUnformatted("Not initialized");
 
