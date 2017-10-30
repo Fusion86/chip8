@@ -148,9 +148,9 @@ int main()
                     ImGui::Text("Opcode: %04X", chip->Opcode);
                     ImGui::Text("I: %04X (%d)", chip->I, chip->I);
                     ImGui::Text("Pc: %04X (%d)", chip->Pc, chip->Pc);
-                    ImGui::Text("Sp: %04X (%d)", chip->Sp, chip->Sp);
-                    ImGui::Text("DelayTimer: %04X (%d)", chip->DelayTimer, chip->DelayTimer);
-                    ImGui::Text("DelayTimer: %04X (%d)", chip->SoundTimer, chip->SoundTimer);
+                    ImGui::Text("Sp: %02X (%d)", chip->Sp, chip->Sp);
+                    ImGui::Text("DelayTimer: %02X (%d)", chip->DelayTimer, chip->DelayTimer);
+                    ImGui::Text("DelayTimer: %02X (%d)", chip->SoundTimer, chip->SoundTimer);
 
                     if (ImGui::CollapsingHeader("Registers"))
                     {

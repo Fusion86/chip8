@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define X (opcode >> 8) & 0x0F
-#define Y (opcode >> 4) & 0x0F
-#define N opcode & 0x0F
-#define NNN opcode & 0x0FFF
-#define KK opcode & 0xFF
+#define X ((opcode >> 8) & 0x0F)
+#define Y ((opcode >> 4) & 0x0F)
+#define N (opcode & 0x0F)
+#define NNN (opcode & 0x0FFF)
+#define KK (opcode & 0xFF)
 
 namespace CHIP8
 {

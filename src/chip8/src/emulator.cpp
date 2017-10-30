@@ -10,8 +10,8 @@ namespace CHIP8
     {
         CHIP8Emulator::CHIP8Emulator()
         {
-            IsInitialized = false;
-            AsmLog = nullptr;
+            // IsInitialized = false;
+            // AsmLog = nullptr;
         }
 
         int CHIP8Emulator::Initialize()
@@ -70,19 +70,30 @@ namespace CHIP8
                 }
                 return 0;
             case 0x1000:
-                // snprintf(buffer, buffer_size, "JP %X", NNN);
+                Pc = NNN;
                 return 0;
             case 0x2000:
                 // TODO: Probably broken
-                Sp++;
+                if (Stack[Sp] != 0)
+                {
+                    Sp++;
+                }
                 Stack[Sp] = Pc;
                 Pc = NNN;
                 return 0;
             case 0x3000:
-                // snprintf(buffer, buffer_size, "SE v%X, %X", X, KK);
+                if (V[X] == KK)
+                {
+                    Pc += 2;
+                }
+                Pc += 2;
                 return 0;
             case 0x4000:
-                // snprintf(buffer, buffer_size, "SNE v%X, %X", X, KK);
+                if (V[X] != KK)
+                {
+                    Pc += 2;
+                }
+                Pc += 2;
                 return 0;
             case 0x5000:
                 // snprintf(buffer, buffer_size, "SE v%X, v%X", X, Y);
@@ -135,10 +146,12 @@ namespace CHIP8
                     // snprintf(buffer, buffer_size, "LD v%X, K", X);
                     return 0;
                 case 0x15:
-                    // snprintf(buffer, buffer_size, "LD DT, v%X", X);
+                    DelayTimer = V[X];
+                    Pc += 2;
                     return 0;
                 case 0x18:
-                    // snprintf(buffer, buffer_size, "LD ST, v%X", X);
+                    SoundTimer = V[X];
+                    Pc += 2;
                     return 0;
                 case 0x1E:
                     // snprintf(buffer, buffer_size, "ADD I, v%X", X);
