@@ -72,7 +72,7 @@ namespace CHIP8
             char asm_str[64];
             CHIP8::Disassembler::OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
 
-            ADD_LOG("[debug] [emulatecycle] Opcode: %04X\n", opcode);
+            // ADD_LOG("[debug] [emulatecycle] Opcode: %04X\n", opcode);
             ADD_LOG("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
 
             //
@@ -88,7 +88,7 @@ namespace CHIP8
                     // snprintf(buffer, buffer_size, "CLS");
                     return 0;
                 case 0x00EE:
-                    // snprintf(buffer, buffer_size, "RET");
+                    Pc = Stack[--Sp];
                     return 0;
                 default:
                     // snprintf(buffer, buffer_size, "SYS %X", NNN);
@@ -99,12 +99,8 @@ namespace CHIP8
                 Pc = NNN;
                 return 0;
             case 0x2000:
-                // TODO: Probably broken
-                if (Stack[Sp] != 0)
-                {
-                    Sp++;
-                }
                 Stack[Sp] = Pc;
+                Sp++;
                 Pc = NNN;
                 return 0;
             case 0x3000:
@@ -130,6 +126,8 @@ namespace CHIP8
                 return 0;
             case 0x7000:
                 // snprintf(buffer, buffer_size, "ADD v%X, %X", X, KK);
+                V[X] += KK;
+                Pc += 2;
                 return 0;
             case 0x8000:
                 switch (N)
