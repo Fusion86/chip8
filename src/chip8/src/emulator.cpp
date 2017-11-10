@@ -1,8 +1,10 @@
 #include "chip8/emulator.h"
 
 #include "chip8/disassembler.h"
+#include "chip8/font.h"
 
 #include <string.h>
+#include <math.h>
 
 namespace CHIP8
 {
@@ -16,6 +18,23 @@ namespace CHIP8
 
         int CHIP8Emulator::Initialize()
         {
+            Opcode = 0;
+            memset(Memory, 0, sizeof(Memory));
+            memset(V, 0, sizeof(V));
+
+            I = 0;
+            Pc = 0;
+
+            memset(Stack, 0, sizeof(Stack));
+            Sp = 0;
+
+            memset(Display, 0, sizeof(Display));
+
+            DelayTimer = 0;
+            SoundTimer = 0;
+
+            LoadFont();
+
             IsInitialized = true;
 
             return 0;
@@ -31,6 +50,13 @@ namespace CHIP8
             Pc = PC_START;
             ADD_LOG("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
+            return 0;
+        }
+
+        int CHIP8Emulator::LoadFont() 
+        {
+            ADD_LOG("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
+            memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
             return 0;
         }
 
@@ -157,16 +183,24 @@ namespace CHIP8
                     // snprintf(buffer, buffer_size, "ADD I, v%X", X);
                     return 0;
                 case 0x29:
-                    // snprintf(buffer, buffer_size, "LD F, v%X", X);
+                    I = FONT_OFFSET + V[X] * 5;
+                    Pc += 2;
                     return 0;
                 case 0x33:
-                    // snprintf(buffer, buffer_size, "LD B, v%X", X);
+                    Memory[I] = floor(V[X] / 100);
+                    Memory[I+1] = floor(V[X] / 10 % 10);;
+                    Memory[I+2] = V[X] % 100 % 10;
+                    Pc += 2;
                     return 0;
                 case 0x55:
                     // snprintf(buffer, buffer_size, "LD [I], v%X", X);
                     return 0;
                 case 0x65:
-                    // snprintf(buffer, buffer_size, "LD v%X, [I]", X);
+                    for (int i = 0; i < X; i++) 
+                    {
+                        V[i] = Memory[I + i];
+                    }
+                    Pc += 2;
                     return 0;
                 default: goto unknown_opcode;
                 }

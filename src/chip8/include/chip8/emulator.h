@@ -5,6 +5,7 @@
 #include "../../chip8gl/include/imgui_applog.h"
 
 #define PC_START 0x200
+#define FONT_OFFSET 0
 
 #define ADD_LOG(fmt, ...)                   \
     if (AsmLog != nullptr)                  \
@@ -44,6 +45,7 @@ namespace CHIP8
 
             int Initialize();
             int LoadGame(uint8_t *buffer, uint32_t buffer_size);
+            int LoadFont();
             int EmulateCycle();
 
             int SetAsmLog(AppLog *ptr);
