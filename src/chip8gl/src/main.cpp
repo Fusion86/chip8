@@ -135,20 +135,35 @@ int main()
                             chip->EmulateCycle();
                         }
                     }
+                    else
+                    {
+                        if (ImGui::Button("Start"))
+                        {
+                            // TODO: 
+                        }
+                    }
 
                     ImGui::Separator();
 
                     if (ImGui::Button("Load rom"))
                     {
                         FILE *file = fopen("roms/PONG", "rb");
-                        uint8_t *buffer;
-                        uint32_t buffer_size;
 
-                        CHIP8::LoadRom(file, &buffer, &buffer_size);
-                        chip->LoadGame(buffer, buffer_size);
+                        if (file == NULL)
+                        {
+                            // TODO: Error
+                        }
+                        else
+                        {
+                            uint8_t *buffer;
+                            uint32_t buffer_size;
 
-                        fclose(file);
-                        free(buffer);
+                            CHIP8::LoadRom(file, &buffer, &buffer_size);
+                            chip->LoadGame(buffer, buffer_size);
+
+                            fclose(file);
+                            free(buffer);
+                        }
                     }
 
                     ImGui::Separator();
