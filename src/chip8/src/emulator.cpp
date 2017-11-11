@@ -53,7 +53,7 @@ namespace CHIP8
             return 0;
         }
 
-        int CHIP8Emulator::LoadFont() 
+        int CHIP8Emulator::LoadFont()
         {
             ADD_LOG("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
             memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
@@ -85,10 +85,10 @@ namespace CHIP8
                 switch (opcode)
                 {
                 case 0x00E0:
-                    // snprintf(buffer, buffer_size, "CLS");
+                    memset(Display, 0, sizeof(Display));
                     return 0;
                 case 0x00EE:
-                    Pc = Stack[--Sp];
+                    Pc = Stack[--Sp] + 2;
                     return 0;
                 default:
                     // snprintf(buffer, buffer_size, "SYS %X", NNN);
@@ -125,7 +125,6 @@ namespace CHIP8
                 Pc += 2;
                 return 0;
             case 0x7000:
-                // snprintf(buffer, buffer_size, "ADD v%X, %X", X, KK);
                 V[X] += KK;
                 Pc += 2;
                 return 0;
@@ -142,7 +141,8 @@ namespace CHIP8
                 Pc += 2;
                 return 0;
             case 0xC000:
-                // snprintf(buffer, buffer_size, "RND v%X, %X", X, KK);
+                V[X] = rand() & KK;
+                Pc += 2;
                 return 0;
             case 0xD000:
                 // TODO: Skipped
@@ -164,7 +164,8 @@ namespace CHIP8
                 switch (KK)
                 {
                 case 0x07:
-                    // snprintf(buffer, buffer_size, "LD v%X, DT", X);
+                    V[X] = DelayTimer;
+                    Pc += 2;
                     return 0;
                 case 0x0A:
                     // snprintf(buffer, buffer_size, "LD v%X, K", X);
@@ -178,7 +179,8 @@ namespace CHIP8
                     Pc += 2;
                     return 0;
                 case 0x1E:
-                    // snprintf(buffer, buffer_size, "ADD I, v%X", X);
+                    I += V[X];
+                    Pc += 2;
                     return 0;
                 case 0x29:
                     I = FONT_OFFSET + V[X] * 5;
@@ -186,15 +188,19 @@ namespace CHIP8
                     return 0;
                 case 0x33:
                     Memory[I] = floor(V[X] / 100);
-                    Memory[I+1] = floor(V[X] / 10 % 10);;
-                    Memory[I+2] = V[X] % 100 % 10;
+                    Memory[I + 1] = floor(V[X] / 10 % 10);
+                    Memory[I + 2] = V[X] % 100 % 10;
                     Pc += 2;
                     return 0;
                 case 0x55:
-                    // snprintf(buffer, buffer_size, "LD [I], v%X", X);
+                    for (int i = 0; i < X; i++)
+                    {
+                        Memory[I + i] = V[i];
+                    }
+                    Pc += 2;
                     return 0;
                 case 0x65:
-                    for (int i = 0; i < X; i++) 
+                    for (int i = 0; i < X; i++)
                     {
                         V[i] = Memory[I + i];
                     }
