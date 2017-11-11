@@ -151,6 +151,7 @@ namespace CHIP8
                 case 0x0:
                     // snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
                     return 0;
+                default: goto unknown_opcode;
                 }
                 return 0;
             case 0xA000:
