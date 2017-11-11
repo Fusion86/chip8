@@ -94,7 +94,7 @@ namespace CHIP8
                     snprintf(buffer, buffer_size, "SUB v%X, v%X", X, Y);
                     return 0;
                 case 0x6:
-                    snprintf(buffer, buffer_size, "SHR v%X {, v%X"}, X, Y); // TODO: Fix
+                    snprintf(buffer, buffer_size, "SHR v%X {, v%X}", X, Y); // TODO: Fix
                     return 0;
                 case 0x7:
                     snprintf(buffer, buffer_size, "SUBN v%X, v%X", X, Y);
