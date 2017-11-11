@@ -25,6 +25,7 @@ namespace CHIP8
 
                 if (missing_opcodes != nullptr && opcode_to_asm_result == 1)
                 {
+                    // Check if the opcode is not in the list
                     if (std::find(missing_opcodes->begin(), missing_opcodes->end(), opcode) == missing_opcodes->end())
                     {
                         missing_opcodes->push_back(opcode);
@@ -94,13 +95,13 @@ namespace CHIP8
                     snprintf(buffer, buffer_size, "SUB v%X, v%X", X, Y);
                     return 0;
                 case 0x6:
-                    snprintf(buffer, buffer_size, "SHR v%X {, v%X}", X, Y); // TODO: Fix
+                    snprintf(buffer, buffer_size, "SHR v%X {, v%X}", X, Y); // TODO: Check if correct
                     return 0;
                 case 0x7:
                     snprintf(buffer, buffer_size, "SUBN v%X, v%X", X, Y);
                     return 0;
                 case 0xE:
-                    snprintf(buffer, buffer_size, "SHL v%X {, v%X}", X, Y); // TODO: Fix
+                    snprintf(buffer, buffer_size, "SHL v%X {, v%X}", X, Y); // TODO: Check if correct
                     return 0;
                 default: goto unknown_opcode;
                 }
