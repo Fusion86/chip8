@@ -6,18 +6,6 @@ file(GLOB chip8gl_SOURCES "src/*.c" "src/*.cpp")
 
 add_executable(chip8gl ${chip8gl_SOURCES})
 
-target_link_libraries(chip8gl chip8)
+target_link_libraries(chip8gl chip8 glfw)
 
 add_definitions(-Dchip8gl_VERSION="${chip8gl_VERSION}")
-
-if(APPLE)
-    target_link_libraries(chip8gl
-        ${OPENGL_LIBRARIES}
-        libglfw3.a
-        "-framework Cocoa"
-        "-framework OpenGL"
-        "-framework IOKit"
-        "-framework CoreFoundation"
-        "-framework CoreVideo"
-    )
-endif(APPLE)

@@ -12,6 +12,11 @@ message(STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY: " ${CMAKE_RUNTIME_OUTPUT_DIRECTO
 
 include(GNUInstallDirs)
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(glfw)
 add_subdirectory(chip8)
 add_subdirectory(cli8)
 add_subdirectory(chip8gl)
