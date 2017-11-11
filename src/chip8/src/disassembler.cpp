@@ -76,8 +76,33 @@ namespace CHIP8
                 switch (N)
                 {
                 case 0x0:
-                    snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
+                    snprintf(buffer, buffer_size, "LD v%X, v%X", X, Y);
                     return 0;
+                case 0x1:
+                    snprintf(buffer, buffer_size, "OR v%X, v%X", X, Y);
+                    return 0;
+                case 0x2:
+                    snprintf(buffer, buffer_size, "AND v%X, v%X", X, Y);
+                    return 0;
+                case 0x3:
+                    snprintf(buffer, buffer_size, "XOR v%X, v%X", X, Y);
+                    return 0;
+                case 0x4:
+                    snprintf(buffer, buffer_size, "ADD v%X, v%X", X, Y);
+                    return 0;
+                case 0x5:
+                    snprintf(buffer, buffer_size, "SUB v%X, v%X", X, Y);
+                    return 0;
+                case 0x6:
+                    snprintf(buffer, buffer_size, "SHR v%X {, v%X"}, X, Y); // TODO: Fix
+                    return 0;
+                case 0x7:
+                    snprintf(buffer, buffer_size, "SUBN v%X, v%X", X, Y);
+                    return 0;
+                case 0xE:
+                    snprintf(buffer, buffer_size, "SHL v%X {, v%X}", X, Y); // TODO: Fix
+                    return 0;
+                default: goto unknown_opcode;
                 }
                 return 0;
             case 0xA000:
