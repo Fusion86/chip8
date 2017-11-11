@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -47,7 +48,7 @@ int main()
 #endif
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *pWindow = glfwCreateWindow(800, 600, "CCHIP-8", NULL, NULL);
+    GLFWwindow *pWindow = glfwCreateWindow(1400, 800, "CCHIP-8", NULL, NULL);
     glfwMakeContextCurrent(pWindow);
 
     if (pWindow == NULL)
@@ -76,8 +77,13 @@ int main()
     static bool show_app_asm_log = false;
     static bool show_app_test = false;
 
+    // ImGui widgets
     static MemoryEditor widget_ram_mem_edit;
     static AppLog widget_asm_log;
+
+    // ImGui input buffers
+    static char input_delay_timer[8];
+    static char input_sound_timer[8];
 
     // CHIP-8 emulator options
     static bool opt_code_step = false; // If false: the code will just run like it normally would on device
@@ -103,6 +109,7 @@ int main()
                 ImGui::MenuItem("Show main window", NULL, &show_app_main);
                 ImGui::MenuItem("Show RAM explorer", NULL, &show_app_ram_edit);
                 ImGui::MenuItem("Show ASM log", NULL, &show_app_asm_log);
+                ImGui::Separator();
                 ImGui::MenuItem("Show test window", NULL, &show_app_test);
                 ImGui::EndMenu();
             }
@@ -149,8 +156,27 @@ int main()
                     ImGui::Text("I: %04X (%d)", chip->I, chip->I);
                     ImGui::Text("Pc: %04X (%d)", chip->Pc, chip->Pc);
                     ImGui::Text("Sp: %02X (%d)", chip->Sp, chip->Sp);
-                    ImGui::Text("DelayTimer: %02X (%d)", chip->DelayTimer, chip->DelayTimer);
-                    ImGui::Text("DelayTimer: %02X (%d)", chip->SoundTimer, chip->SoundTimer);
+
+                    if (opt_code_step == false)
+                    {
+                        ImGui::Text("DelayTimer: %02X (%d)", chip->DelayTimer, chip->DelayTimer);
+                        ImGui::Text("SoundTimer: %02X (%d)", chip->SoundTimer, chip->SoundTimer);
+                    }
+                    else
+                    {
+                        snprintf(input_delay_timer, sizeof(input_delay_timer), "%d", chip->DelayTimer);
+                        snprintf(input_sound_timer, sizeof(input_sound_timer), "%d", chip->SoundTimer);
+
+                        if (ImGui::InputText("DelayTimer", input_delay_timer, sizeof(input_delay_timer), ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            sscanf(input_delay_timer, "%" SCNu8, &chip->DelayTimer);
+                        }
+
+                        if (ImGui::InputText("SoundTimer", input_sound_timer, sizeof(input_sound_timer), ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            sscanf(input_sound_timer, "%" SCNu8, &chip->SoundTimer);
+                        }
+                    }
 
                     if (ImGui::CollapsingHeader("Registers"))
                     {
@@ -210,6 +236,12 @@ int main()
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        if (chip->DrawFlag)
+        {
+            // TODO: Render CHIP-8 screen
+            chip->DrawFlag = false;
+        }
 
         ImGui::Render();
 

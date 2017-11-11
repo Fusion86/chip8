@@ -8,9 +8,9 @@
 #define FONT_OFFSET 0
 
 #define ADD_LOG(fmt, ...)                   \
-    if (AsmLog != nullptr)                  \
+    if (m_AsmLog != nullptr)                  \
     {                                       \
-        AsmLog->AddLog(fmt, ##__VA_ARGS__); \
+        m_AsmLog->AddLog(fmt, ##__VA_ARGS__); \
     }
 
 namespace CHIP8
@@ -21,6 +21,8 @@ namespace CHIP8
         {
           public:
             bool IsInitialized;
+            bool HasGameLoaded;
+            bool DrawFlag; // If true = require redraw
 
             uint16_t Opcode = 0;
             uint8_t Memory[4096] = {0};
@@ -38,15 +40,17 @@ namespace CHIP8
             uint8_t SoundTimer = 0;
 
           private:
-            AppLog *AsmLog = nullptr;
+            AppLog *m_AsmLog = nullptr;
 
           public:
             CHIP8Emulator();
 
-            int Initialize();
+            int Initialize(bool load_font = true);
             int LoadGame(uint8_t *buffer, uint32_t buffer_size);
             int LoadFont();
             int EmulateCycle();
+
+            bool GetKeyDown(uint8_t keycode);
 
             int SetAsmLog(AppLog *ptr);
         };

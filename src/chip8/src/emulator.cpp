@@ -16,8 +16,10 @@ namespace CHIP8
             // AsmLog = nullptr;
         }
 
-        int CHIP8Emulator::Initialize()
+        int CHIP8Emulator::Initialize(bool load_font)
         {
+            ADD_LOG("[info] [chip8emulator] Initializing emulator...\n");
+
             Opcode = 0;
             memset(Memory, 0, sizeof(Memory));
             memset(V, 0, sizeof(V));
@@ -33,21 +35,35 @@ namespace CHIP8
             DelayTimer = 0;
             SoundTimer = 0;
 
-            LoadFont();
+            if (load_font)
+            {
+                LoadFont();
+            }
 
+            HasGameLoaded = false;
             IsInitialized = true;
+
+            DrawFlag = false;
+
+            ADD_LOG("[info] [chip8emulator] Initialized emulator\n");
 
             return 0;
         }
 
         int CHIP8Emulator::LoadGame(uint8_t *buffer, uint32_t buffer_size)
         {
+            if (HasGameLoaded)
+            {
+                Initialize(); // Reset if game is loaded (a reset is not needed if no game/rom is loaded)
+            }
+
             ADD_LOG("[info] [loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
-
             ADD_LOG(" OK (size %d)\n", buffer_size);
 
             Pc = PC_START;
+            HasGameLoaded = true;
+
             ADD_LOG("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
             return 0;
@@ -57,6 +73,7 @@ namespace CHIP8
         {
             ADD_LOG("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
             memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
+            ADD_LOG(" OK\n");
             return 0;
         }
 
@@ -145,17 +162,42 @@ namespace CHIP8
                 Pc += 2;
                 return 0;
             case 0xD000:
-                // TODO: Skipped
+                uint8_t pixel;
+
+                V[0xF] = 0;
+                for (int yline = 0; yline < N; yline++) // N = height
+                {
+                    pixel = Memory[I + yline];
+                    for (int xline = 0; xline < 8; xline++)
+                    {
+                        if ((pixel & (0x80 >> xline)) != 0) // wtf does this do?
+                        {
+                            if (Display[V[X] + xline + ((V[Y] + yline) * 64)] == 1)
+                            {
+                                V[0xF] = 1; // Set VF = 1 because there is a collision
+                            }
+                            Display[V[X] + xline + ((V[Y] + yline) * 64)] ^= 1; // XOR pixel
+                        }
+                    }
+                }
                 Pc += 2;
                 return 0;
             case 0xE000:
                 switch (KK)
                 {
                 case 0x9E:
-                    // snprintf(buffer, buffer_size, "SKP v%X", X);
+                    if (GetKeyDown(V[X]))
+                    {
+                        Pc += 2;
+                    }
+                    Pc += 2;
                     return 0;
                 case 0xA1:
-                    // snprintf(buffer, buffer_size, "SKNP v%X", X);
+                    if (GetKeyDown(V[X]) == false)
+                    {
+                        Pc += 2;
+                    }
+                    Pc += 2;
                     return 0;
                 default: goto unknown_opcode;
                 }
@@ -211,14 +253,20 @@ namespace CHIP8
                 return 0;
             default:
             unknown_opcode:
-                ADD_LOG("[debug] [emulatecycle] Unknown opcode\n");
+                ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", Opcode);
                 return 1;
             }
         }
 
+        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
+        {
+            // TODO: Everything
+            return false;
+        }
+
         int CHIP8Emulator::SetAsmLog(AppLog *ptr)
         {
-            this->AsmLog = ptr;
+            m_AsmLog = ptr;
             return 0;
         }
     }
