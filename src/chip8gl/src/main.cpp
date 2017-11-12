@@ -250,7 +250,7 @@ int main()
         {
             // ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
             // TODO: Draw own window and then use DrawContents()
-            widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Display, sizeof(chip->Display));
+            widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
         }
 
         // ASM Log
