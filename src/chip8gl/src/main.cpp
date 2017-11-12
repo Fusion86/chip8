@@ -78,6 +78,10 @@ int main()
     static bool show_app_asm_log = false;
     static bool show_app_test = false;
 
+    // ImGui popups
+    const char *title_popup_rom_not_found = "ROM not found!";
+    static bool show_popup_rom_not_found = false;
+
     // ImGui widgets
     static MemoryEditor widget_ram_mem_edit;
     static AppLog widget_asm_log;
@@ -147,7 +151,7 @@ int main()
 
                             ImGui::SameLine();
 
-                            if (ImGui::Button("Reset")) 
+                            if (ImGui::Button("Reset"))
                             {
                                 chip->Initialize();
                             }
@@ -169,7 +173,7 @@ int main()
 
                         if (file == NULL)
                         {
-                            // TODO: Error
+                            show_popup_rom_not_found = true;
                         }
                         else
                         {
@@ -246,7 +250,7 @@ int main()
         {
             // ImGui::SetNextWindowSize(ImVec2(350, 560), ImGuiCond_FirstUseEver);
             // TODO: Draw own window and then use DrawContents()
-            widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
+            widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Display, sizeof(chip->Display));
         }
 
         // ASM Log
@@ -262,7 +266,23 @@ int main()
             ImGui::ShowTestWindow(&show_app_test);
         }
 
-        // TODO: Sync and run emulator here if not code stepping
+        // ROM not found popup
+        if (show_popup_rom_not_found)
+        {
+            show_popup_rom_not_found = false;
+            ImGui::OpenPopup(title_popup_rom_not_found);
+        }
+
+        if (ImGui::BeginPopupModal(title_popup_rom_not_found, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Couldn't find the rom!\n\n");
+
+            if (ImGui::Button("OK"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
 
         // Rendering
         int display_w, display_h;
