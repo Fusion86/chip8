@@ -14,6 +14,8 @@ target_include_directories(chip8 PUBLIC
     PRIVATE src
 )
 
+target_link_libraries(chip8 glfw)
+
 install(TARGETS chip8 EXPORT chip8Config
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
