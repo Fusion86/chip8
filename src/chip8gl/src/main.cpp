@@ -49,7 +49,7 @@ int main()
 #endif
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *pWindow = glfwCreateWindow(1400, 800, "CCHIP-8", NULL, NULL);
+    GLFWwindow *pWindow = glfwCreateWindow(1400, 800, "CHIP-8", NULL, NULL);
     glfwMakeContextCurrent(pWindow);
 
     if (pWindow == NULL)
@@ -91,6 +91,7 @@ int main()
 
     // Link ImGui objects with emulator
     chip->SetAsmLog(&widget_asm_log);
+    chip->SetWindowContext(pWindow);
 
     //
     // Main Loop

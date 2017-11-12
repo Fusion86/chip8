@@ -2,14 +2,16 @@
 
 #include <stdint.h>
 
+#include <GLFW/glfw3.h>
+
 #include "../../chip8gl/include/imgui_applog.h"
 
 #define PC_START 0x200
 #define FONT_OFFSET 0
 
-#define ADD_LOG(fmt, ...)                   \
+#define ADD_LOG(fmt, ...)                     \
     if (m_AsmLog != nullptr)                  \
-    {                                       \
+    {                                         \
         m_AsmLog->AddLog(fmt, ##__VA_ARGS__); \
     }
 
@@ -25,22 +27,45 @@ namespace CHIP8
             bool DrawFlag; // If true = require redraw
 
             uint16_t Opcode = 0;
-            uint8_t Memory[4096] = {0};
-            uint8_t V[16] = {0};
+            uint8_t Memory[4096] = { 0 };
+            uint8_t V[16] = { 0 };
 
             uint16_t I = 0;
             uint16_t Pc = 0;
 
-            uint16_t Stack[16] = {0};
+            uint16_t Stack[16] = { 0 };
             uint8_t Sp = 0;
 
-            uint8_t Display[64 * 32] = {0};
+            uint8_t Display[64 * 32] = { 0 };
 
             uint8_t DelayTimer = 0;
             uint8_t SoundTimer = 0;
 
+            int KeyMap[16] = {
+                GLFW_KEY_X,
+                GLFW_KEY_1,
+                GLFW_KEY_2,
+                GLFW_KEY_3,
+
+                GLFW_KEY_4,
+                GLFW_KEY_5,
+                GLFW_KEY_6,
+                GLFW_KEY_7,
+
+                GLFW_KEY_8,
+                GLFW_KEY_9,
+                GLFW_KEY_Z,
+                GLFW_KEY_C,
+                
+                GLFW_KEY_4,
+                GLFW_KEY_R,
+                GLFW_KEY_F,
+                GLFW_KEY_V
+            };
+
           private:
             AppLog *m_AsmLog = nullptr;
+            GLFWwindow *m_Window = nullptr;
 
           public:
             CHIP8Emulator();
@@ -53,6 +78,7 @@ namespace CHIP8
             bool GetKeyDown(uint8_t keycode);
 
             int SetAsmLog(AppLog *ptr);
+            int SetWindowContext(GLFWwindow *window);
         };
     }
 }

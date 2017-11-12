@@ -12,8 +12,6 @@ namespace CHIP8
     {
         CHIP8Emulator::CHIP8Emulator()
         {
-            // IsInitialized = false;
-            // AsmLog = nullptr;
         }
 
         int CHIP8Emulator::Initialize(bool load_font)
@@ -261,13 +259,17 @@ namespace CHIP8
 
         bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
         {
-            // TODO: Everything
-            return false;
+            return glfwGetKey(window, keycode) == GLFW_PRESS;
         }
 
         int CHIP8Emulator::SetAsmLog(AppLog *ptr)
         {
             m_AsmLog = ptr;
+            return 0;
+        }
+        int CHIP8Emulator::SetWindowContext(GLFWwindow *window)
+        {
+            m_Window = window;
             return 0;
         }
     }
