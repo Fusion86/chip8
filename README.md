@@ -1,11 +1,9 @@
 # chip8
 
-## Requirements
-
-- GLFW3
+Text about what this is...
 
 
-## Buidling
+## Compiling
 
 Create buildfiles (usually Unix Makefiles)
 ```sh
@@ -14,7 +12,13 @@ cd build
 cmake ../src
 ```
 
-and then build with `make` (this step might be different if CMake uses a different generator)
+### Linux/MacOS
+
+Just run `make` in the build directory.
+
+### Windows
+
+Run `MSBuild` on any of the `.vcxproj` files, or open the whole `Project.sln` solution in Visual Studio.
 
 
 ## Keypad
