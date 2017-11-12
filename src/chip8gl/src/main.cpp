@@ -127,20 +127,37 @@ int main()
             {
                 if (chip->IsInitialized)
                 {
-                    ImGui::Checkbox("Step through code", &opt_code_step);
+                    ImGui::Checkbox("Enable code step", &opt_code_step);
 
-                    if (opt_code_step)
+                    if (opt_code_step && !chip->IsRunning)
                     {
                         if (ImGui::Button("Continue"))
                         {
-                            chip->EmulateCycle();
+                            chip->EmulateCycleStep();
                         }
                     }
                     else
                     {
-                        if (ImGui::Button("Start"))
+                        if (!chip->IsRunning)
                         {
-                            // TODO: 
+                            if (ImGui::Button("Start"))
+                            {
+                                chip->IsRunning = true;
+                            }
+
+                            ImGui::SameLine();
+
+                            if (ImGui::Button("Reset")) 
+                            {
+                                chip->Initialize();
+                            }
+                        }
+                        else
+                        {
+                            if (ImGui::Button("Stop"))
+                            {
+                                chip->IsRunning = false;
+                            }
                         }
                     }
 

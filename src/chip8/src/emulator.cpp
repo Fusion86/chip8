@@ -5,6 +5,8 @@
 
 #include <string.h>
 #include <math.h>
+#include <chrono>
+#include <thread>
 
 namespace CHIP8
 {
@@ -12,6 +14,17 @@ namespace CHIP8
     {
         CHIP8Emulator::CHIP8Emulator()
         {
+            Initialize();
+            thread_main = std::thread(&CHIP8Emulator::RunMain, this);
+            thread_timers = std::thread(&CHIP8Emulator::RunTimers, this);
+
+            thread_main.detach();
+            thread_timers.detach();
+        }
+
+        CHIP8Emulator::~CHIP8Emulator()
+        {
+            ShutdownRequested = true;
         }
 
         int CHIP8Emulator::Initialize(bool load_font)
@@ -40,6 +53,8 @@ namespace CHIP8
 
             HasGameLoaded = false;
             IsInitialized = true;
+            IsRunning = false;
+            ShutdownRequested = false;
 
             DrawFlag = false;
 
@@ -75,8 +90,13 @@ namespace CHIP8
             return 0;
         }
 
-        int CHIP8Emulator::EmulateCycle()
+        int CHIP8Emulator::EmulateCycleStep()
         {
+            if (IsRunning)
+            {
+                return ERR_ALREADY_RUNNING;
+            }
+
             uint16_t opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
             Opcode = opcode; // Save opcode in class
 
@@ -94,6 +114,28 @@ namespace CHIP8
             // Emulate
             //
 
+            return EmulateCycle(opcode);
+        }
+
+        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
+        {
+            return glfwGetKey(m_pWindow, KeyMap[keycode]) == GLFW_PRESS;
+        }
+
+        int CHIP8Emulator::SetAsmLog(AppLog *ptr)
+        {
+            m_AsmLog = ptr;
+            return 0;
+        }
+
+        int CHIP8Emulator::SetWindowContext(GLFWwindow *window)
+        {
+            m_pWindow = window;
+            return 0;
+        }
+
+        int CHIP8Emulator::EmulateCycle(uint16_t opcode)
+        {
             switch (opcode & 0xF000)
             {
             case 0x0000:
@@ -147,7 +189,41 @@ namespace CHIP8
                 switch (N)
                 {
                 case 0x0:
-                    // snprintf(buffer, buffer_size, "LD v%X, v%X, %X", X, Y, KK);
+                    V[X] = V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x1:
+                    V[X] |= V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x2:
+                    V[X] &= V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x3:
+                    V[X] ^= V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x4:
+                    V[0xF] = ((uint16_t)V[X] + (uint16_t)V[Y] > 256) ? 1 : 0;
+                    V[X] += V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x5:
+                    V[0xF] = (V[X] > V[Y]) ? 1 : 0;
+                    V[X] -= V[Y];
+                    Pc += 2;
+                    return 0;
+                case 0x6:
+                    // snprintf(buffer, buffer_size, "SHR v%X {, v%X}", X, Y); // TODO: Check if correct
+                    return 0;
+                case 0x7:
+                    V[0xF] = (V[Y] > V[X]) ? 1 : 0;
+                    V[X] = V[Y] - V[X];
+                    Pc += 2;
+                    return 0;
+                case 0xE:
+                    // snprintf(buffer, buffer_size, "SHL v%X {, v%X}", X, Y); // TODO: Check if correct
                     return 0;
                 default: goto unknown_opcode;
                 }
@@ -253,24 +329,70 @@ namespace CHIP8
             default:
             unknown_opcode:
                 ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", Opcode);
-                return 1;
+                return ERR_UNKNOWN_OPCODE;
             }
         }
 
-        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
-        {
-            return glfwGetKey(window, keycode) == GLFW_PRESS;
-        }
+        //
+        // Thread Code
+        //
+        // This is not accurate at all, and both threads will also not run in sync (esp. when stopped and resumed)
+        //
 
-        int CHIP8Emulator::SetAsmLog(AppLog *ptr)
+        int CHIP8Emulator::RunMain()
         {
-            m_AsmLog = ptr;
+            if (IsRunning)
+            {
+                return ERR_ALREADY_RUNNING;
+            }
+
+            uint16_t opcode;
+
+            while (!ShutdownRequested)
+            {
+                if (!IsRunning)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    continue;
+                }
+
+                opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
+                Opcode = opcode; // Save opcode in class
+
+                if (EmulateCycle(opcode) != 0)
+                {
+                    IsRunning = false;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(2)); // TODO: This is most likely not accurate
+            }
+
+            // TODO: Probably a leak here
+
             return 0;
         }
-        
-        int CHIP8Emulator::SetWindowContext(GLFWwindow *window)
+
+        int CHIP8Emulator::RunTimers()
         {
-            m_Window = window;
+            while (!ShutdownRequested)
+            {
+                if (!IsRunning)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    continue;
+                }
+
+                if (DelayTimer > 0)
+                    DelayTimer--;
+
+                if (SoundTimer > 0)
+                    SoundTimer--;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60)); // TODO: This is most likely not accurate
+            }
+
+            // TODO: Probably a leak here
+
             return 0;
         }
     }

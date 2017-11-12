@@ -1,10 +1,14 @@
 #pragma once
 
 #include <stdint.h>
+#include <thread>
 
 #include <GLFW/glfw3.h>
 
 #include "../../chip8gl/include/imgui_applog.h"
+
+#define ERR_ALREADY_RUNNING 1
+#define ERR_UNKNOWN_OPCODE 2
 
 #define PC_START 0x200
 #define FONT_OFFSET 0
@@ -25,6 +29,7 @@ namespace CHIP8
             bool IsInitialized;
             bool HasGameLoaded;
             bool DrawFlag; // If true = require redraw
+            bool IsRunning;
 
             uint16_t Opcode = 0;
             uint8_t Memory[4096] = { 0 };
@@ -56,7 +61,7 @@ namespace CHIP8
                 GLFW_KEY_9,
                 GLFW_KEY_Z,
                 GLFW_KEY_C,
-                
+
                 GLFW_KEY_4,
                 GLFW_KEY_R,
                 GLFW_KEY_F,
@@ -65,20 +70,30 @@ namespace CHIP8
 
           private:
             AppLog *m_AsmLog = nullptr;
-            GLFWwindow *m_Window = nullptr;
+            GLFWwindow *m_pWindow = nullptr;
+            std::thread thread_main;
+            std::thread thread_timers;
 
           public:
             CHIP8Emulator();
+            ~CHIP8Emulator();
 
             int Initialize(bool load_font = true);
             int LoadGame(uint8_t *buffer, uint32_t buffer_size);
             int LoadFont();
-            int EmulateCycle();
+            int EmulateCycleStep();
 
             bool GetKeyDown(uint8_t keycode);
 
             int SetAsmLog(AppLog *ptr);
             int SetWindowContext(GLFWwindow *window);
+
+          private:
+            bool ShutdownRequested;
+
+            int EmulateCycle(uint16_t opcode);
+            int RunMain();
+            int RunTimers();
         };
     }
 }
