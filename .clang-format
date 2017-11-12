@@ -21,3 +21,4 @@ AllowShortFunctionsOnASingleLine: false
 CompactNamespaces: true
 PointerAlignment: Right
 SortIncludes: false
+Cpp11BracedListStyle: false
