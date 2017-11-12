@@ -19,6 +19,12 @@ Just run `make` in the build directory.
 ### Windows
 
 Run `MSBuild` on any of the `.vcxproj` files, or open the whole `Project.sln` solution in Visual Studio.
+You'll have to set the working directory to `..\..\bin\Debug` for chip8gl (for it to find the roms).
+
+
+## Roms
+
+You can download a few roms from [Zophar's Domain](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html)
 
 
 ## Keypad
