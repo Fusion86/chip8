@@ -267,6 +267,7 @@ namespace CHIP8
             m_AsmLog = ptr;
             return 0;
         }
+        
         int CHIP8Emulator::SetWindowContext(GLFWwindow *window)
         {
             m_Window = window;
