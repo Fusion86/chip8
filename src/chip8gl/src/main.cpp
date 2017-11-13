@@ -22,14 +22,6 @@ static void error_callback(int error, const char *description)
     printf("Error %d: %s\n", error, description);
 }
 
-// void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-// {5
-//     printf("Key: %x\n", key);
-
-//     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-//         glfwSetWindowShouldClose(window, GL_TRUE);
-// }
-
 int main()
 {
     //
@@ -75,7 +67,7 @@ int main()
     // ImGui windows
     static bool show_app_main = true;
     static bool show_app_ram_edit = false;
-    static bool show_app_asm_log = false;
+    static bool show_app_log = false;
     static bool show_app_test = false;
 
     // ImGui popups
@@ -84,7 +76,7 @@ int main()
 
     // ImGui widgets
     static MemoryEditor widget_ram_mem_edit;
-    static AppLog widget_asm_log;
+    static AppLog widget_log;
 
     // ImGui input buffers
     static char input_delay_timer[8];
@@ -94,7 +86,7 @@ int main()
     static bool opt_code_step = false; // If false: the code will just run like it normally would on device
 
     // Link ImGui objects with emulator
-    chip->SetAsmLog(&widget_asm_log);
+    chip->SetAsmLog(&widget_log);
     chip->SetWindowContext(pWindow);
 
     //
@@ -114,7 +106,7 @@ int main()
             {
                 ImGui::MenuItem("Show main window", NULL, &show_app_main);
                 ImGui::MenuItem("Show RAM explorer", NULL, &show_app_ram_edit);
-                ImGui::MenuItem("Show ASM log", NULL, &show_app_asm_log);
+                ImGui::MenuItem("Show log", NULL, &show_app_log);
                 ImGui::Separator();
                 ImGui::MenuItem("Show test window", NULL, &show_app_test);
                 ImGui::EndMenu();
@@ -253,10 +245,10 @@ int main()
             widget_ram_mem_edit.DrawWindow("RAM Explorer", chip->Memory, sizeof(chip->Memory));
         }
 
-        // ASM Log
-        if (show_app_asm_log)
+        // App Log
+        if (show_app_log)
         {
-            widget_asm_log.Draw("ASM Log", &show_app_asm_log);
+            widget_log.Draw("Log", &show_app_log);
         }
 
         // Test/demo window
@@ -284,7 +276,10 @@ int main()
             ImGui::EndPopup();
         }
 
+        //
         // Rendering
+        //
+
         int display_w, display_h;
         glfwGetFramebufferSize(pWindow, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
@@ -296,6 +291,7 @@ int main()
             // TODO: Render CHIP-8 screen
             chip->DrawFlag = false;
         }
+
 
         ImGui::Render();
 
