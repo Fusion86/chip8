@@ -292,7 +292,6 @@ int main()
             chip->DrawFlag = false;
         }
 
-
         ImGui::Render();
 
         glfwSwapBuffers(pWindow);
