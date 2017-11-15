@@ -15,11 +15,67 @@
 
 using namespace CHIP8::Emulator;
 
+//
+// Shader Source
+//
+
+const char *vertex_shader_source = R""(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+  
+out vec3 ourColor;
+
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+}
+)"";
+
+const char *fragment_shader_source = R""(
+#version 330 core
+out vec4 FragColor;  
+  
+void main()
+{
+    FragColor = vec4(1, 1, 1, 1);
+}
+)"";
+
+// ImGui / OpenGL generic
+static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+// ImGui windows
+static bool show_app_main = true;
+static bool show_app_ram_edit = false;
+static bool show_app_log = false;
+static bool show_app_test = false;
+
+// ImGui popups
+const char *title_popup_rom_not_found = "ROM not found!";
+static bool show_popup_rom_not_found = false;
+
+// ImGui widgets
+static MemoryEditor widget_ram_mem_edit;
+static AppLog widget_log;
+
+// ImGui input buffers
+static char input_delay_timer[8];
+static char input_sound_timer[8];
+
+// CHIP-8 emulator
 static CHIP8Emulator *chip = new CHIP8Emulator();
+static bool opt_code_step = false; // If false: the code will just run like it normally would on device
 
 static void error_callback(int error, const char *description)
 {
     printf("Error %d: %s\n", error, description);
+}
+
+static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
 
 int main()
@@ -41,10 +97,11 @@ int main()
 #endif
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *pWindow = glfwCreateWindow(1400, 800, "CHIP-8", NULL, NULL);
-    glfwMakeContextCurrent(pWindow);
+    GLFWwindow *window = glfwCreateWindow(1400, 800, "CHIP-8", NULL, NULL);
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    if (pWindow == NULL)
+    if (window == NULL)
     {
         printf("Failed to create GLFW window\n");
         glfwTerminate();
@@ -61,39 +118,94 @@ int main()
     }
 
     // Setup ImGui binding
-    ImGui_ImplGlfwGL3_Init(pWindow, true);
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    // ImGui windows
-    static bool show_app_main = true;
-    static bool show_app_ram_edit = false;
-    static bool show_app_log = false;
-    static bool show_app_test = false;
-
-    // ImGui popups
-    const char *title_popup_rom_not_found = "ROM not found!";
-    static bool show_popup_rom_not_found = false;
-
-    // ImGui widgets
-    static MemoryEditor widget_ram_mem_edit;
-    static AppLog widget_log;
-
-    // ImGui input buffers
-    static char input_delay_timer[8];
-    static char input_sound_timer[8];
-
-    // CHIP-8 emulator options
-    static bool opt_code_step = false; // If false: the code will just run like it normally would on device
+    ImGui_ImplGlfwGL3_Init(window, true);
 
     // Link ImGui objects with emulator
     chip->SetAsmLog(&widget_log);
-    chip->SetWindowContext(pWindow);
+    chip->SetWindowContext(window);
+
+    //
+    // Setup shaders
+    //
+
+    int success;
+    char infoLog[512];
+
+    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertexShader);
+
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        widget_log.AddLog("[error] [vertex shader] [compilation failed] %s\n", infoLog);
+    }
+
+    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragment_shader_source, NULL);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        widget_log.AddLog("[error] [fragment shader] [compilation failed] %s\n", infoLog);
+    }
+
+    int shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        widget_log.AddLog("[error] [shader program] [linking failed] %s\n", infoLog);
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    //
+    // Setup our one quad
+    //
+
+	float vertices[] = {
+		0.5f,  0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		-0.5f,  0.5f, 0.0f,
+	};
+	unsigned int indices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glUseProgram(shaderProgram);
 
     //
     // Main Loop
     //
 
-    while (!glfwWindowShouldClose(pWindow))
+    while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
@@ -281,7 +393,7 @@ int main()
         //
 
         int display_w, display_h;
-        glfwGetFramebufferSize(pWindow, &display_w, &display_h);
+        glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -292,9 +404,12 @@ int main()
             chip->DrawFlag = false;
         }
 
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         ImGui::Render();
 
-        glfwSwapBuffers(pWindow);
+        glfwSwapBuffers(window);
     }
 
     // Terminates GLFW, clearing any resources allocated by GLFW.
