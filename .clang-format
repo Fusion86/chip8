@@ -24,4 +24,3 @@ SortIncludes: false
 Cpp11BracedListStyle: false
 AlignTrailingComments: false
 FixNamespaceComments: true
-SortIncludes: true
