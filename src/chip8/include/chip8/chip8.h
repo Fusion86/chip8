@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define X ((opcode >> 8) & 0x0F)
 #define Y ((opcode >> 4) & 0x0F)

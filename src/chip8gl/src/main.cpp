@@ -1,14 +1,14 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include "imgui.h"
+#include "imgui_applog.h"
 #include "imgui_impl_glfw_gl3.h"
 #include "imgui_memory_editor.h"
-#include "imgui_applog.h"
 
 #include "chip8/chip8.h"
 #include "chip8/emulator.h"

@@ -166,5 +166,5 @@ namespace CHIP8
                 return 1;
             }
         }
-    }
-}
+    } // namespace Disassembler
+} // namespace CHIP8

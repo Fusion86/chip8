@@ -95,5 +95,5 @@ namespace CHIP8
             int RunMain();
             int RunTimers();
         };
-    }
-}
+    } // namespace Emulator
+} // namespace CHIP8

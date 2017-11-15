@@ -3,9 +3,9 @@
 #include "chip8/disassembler.h"
 #include "chip8/font.h"
 
-#include <string.h>
-#include <math.h>
 #include <chrono>
+#include <math.h>
+#include <string.h>
 #include <thread>
 
 namespace CHIP8
@@ -395,5 +395,5 @@ namespace CHIP8
 
             return 0;
         }
-    }
-}
+    } // namespace Emulator
+} // namespace CHIP8
