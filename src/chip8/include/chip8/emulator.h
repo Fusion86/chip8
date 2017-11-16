@@ -31,20 +31,20 @@ namespace CHIP8
             bool DrawFlag; // If true = require redraw
             bool IsRunning;
 
-            uint16_t Opcode = 0;
-            uint8_t Memory[4096] = { 0 };
-            uint8_t V[16] = { 0 };
+            uint16_t Opcode;
+            uint8_t Memory[4096];
+            uint8_t V[16];
 
-            uint16_t I = 0;
-            uint16_t Pc = 0;
+            uint16_t I;
+            uint16_t Pc;
 
-            uint16_t Stack[16] = { 0 };
-            uint8_t Sp = 0;
+            uint16_t Stack[16];
+            uint8_t Sp;
 
-            uint8_t Display[64 * 32] = { 0 };
+            uint8_t Display[64 * 32];
 
-            uint8_t DelayTimer = 0;
-            uint8_t SoundTimer = 0;
+            uint8_t DelayTimer;
+            uint8_t SoundTimer;
 
             int KeyMap[16] = {
                 GLFW_KEY_X,

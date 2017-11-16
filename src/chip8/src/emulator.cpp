@@ -58,7 +58,7 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            ADD_LOG("[info] [chip8emulator] Initialized emulator\n");
+            ADD_LOG("[info] [chip8emulator] Initialized emulator.\n");
 
             return 0;
         }
