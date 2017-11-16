@@ -15,36 +15,9 @@
 
 using namespace CHIP8::Emulator;
 
-//
-// Shader Source
-//
-
-const char *vertex_shader_source = R""(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-  
-out vec3 ourColor;
-
-void main()
-{
-    gl_Position = vec4(aPos, 1.0);
-}
-)"";
-
-const char *fragment_shader_source = R""(
-#version 330 core
-out vec4 FragColor;
-
-uniform sampler2D screen;
-  
-void main()
-{
-    FragColor = vec4(1, 1, 1, 1);
-}
-)"";
-
 // ImGui / OpenGL generic
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+static uint8_t screenData[32][64][3] = { 0 };
 
 // ImGui windows
 static bool show_app_main = true;
@@ -75,8 +48,7 @@ static void error_callback(int error, const char *description)
 
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
+    glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
     glViewport(0, 0, width, height);
 }
 
@@ -125,6 +97,22 @@ int main()
     // Link ImGui objects with emulator
     chip->SetAsmLog(&widget_log);
     chip->SetWindowContext(window);
+
+    //
+    //
+    //
+
+    // Create a texture
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, 64, 32, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid *)screenData);
+
+    // Set up the texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+    // Enable textures
+    glEnable(GL_TEXTURE_2D);
 
     //
     // Main Loop
@@ -317,16 +305,40 @@ int main()
         // Rendering
         //
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        // int display_w, display_h;
+        // glfwGetFramebufferSize(window, &display_w, &display_h);
+        // glViewport(0, 0, display_w, display_h);
+        // glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
         if (chip->DrawFlag)
         {
-            // TODO: Render CHIP-8 screen
             chip->DrawFlag = false;
+
+            for (int y = 0; y < 32; ++y)
+                for (int x = 0; x < 64; ++x)
+                    if (chip->Display[(y * 64) + x] == 0)
+                        screenData[y][x][0] = screenData[y][x][1] = screenData[y][x][2] = 0; // Disabled
+                    else
+                        screenData[y][x][0] = screenData[y][x][1] = screenData[y][x][2] = 255; // Enabled
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 64, 32, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid *)screenData);
+
+            glBegin(GL_QUADS);
+            
+                glTexCoord2d(0.0, 0.0);
+                glVertex2d(0.0, 0.0);
+
+                glTexCoord2d(1.0, 0.0);
+                glVertex2d(400, 0.0);
+
+                glTexCoord2d(1.0, 1.0);
+                glVertex2d(400, 200);
+
+                glTexCoord2d(0.0, 1.0);
+                glVertex2d(0.0, 200);
+            
+            glEnd();
         }
 
         ImGui::Render();
@@ -336,5 +348,8 @@ int main()
 
     // Terminates GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
+
+    delete chip;
+
     return 0;
 }
