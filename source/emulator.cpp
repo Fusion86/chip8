@@ -30,7 +30,7 @@ namespace CHIP8
         {
             ADD_LOG("[info] [chip8emulator] Initializing emulator...\n");
 
-            Opcode = 0;
+            // Opcode = 0;
             memset(Memory, 0, sizeof(Memory));
             memset(V, 0, sizeof(V));
 
@@ -71,7 +71,7 @@ namespace CHIP8
 
             ADD_LOG("[info] [loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
-            ADD_LOG(" OK (size %d)\n", buffer_size);
+            ADD_LOG(" OK (size %lu)\n", buffer_size);
 
             Pc = PC_START;
             HasGameLoaded = true;
@@ -97,7 +97,7 @@ namespace CHIP8
             }
 
             uint16_t opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
-            Opcode = opcode; // Save opcode in class
+            // Opcode = opcode; // Save opcode in class
 
             //
             // AsmLog
@@ -243,6 +243,7 @@ namespace CHIP8
                         }
                     }
                 }
+                DrawFlag = true;
                 Pc += 2;
                 return 0;
             case 0xE000:
@@ -316,7 +317,7 @@ namespace CHIP8
                 return 0;
             default:
             unknown_opcode:
-                ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", Opcode);
+                ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", opcode);
                 return ERR_UNKNOWN_OPCODE;
             }
         }

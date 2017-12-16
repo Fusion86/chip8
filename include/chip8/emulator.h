@@ -9,7 +9,7 @@
 #define PC_START 0x200
 #define FONT_OFFSET 0
 
-#define ADD_LOG(fmt, ...)
+#define ADD_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__);
 
 namespace CHIP8
 {
@@ -23,7 +23,7 @@ namespace CHIP8
             bool DrawFlag; // If true = require redraw
             bool IsRunning;
 
-            uint16_t Opcode;
+            // uint16_t Opcode;
             uint8_t Memory[4096];
             uint8_t V[16];
 
