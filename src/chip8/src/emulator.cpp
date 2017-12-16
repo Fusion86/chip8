@@ -255,6 +255,7 @@ namespace CHIP8
                         }
                     }
                 }
+                DrawFlag = true;
                 Pc += 2;
                 return 0;
             case 0xE000:
