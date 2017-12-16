@@ -11,5 +11,5 @@
 
 namespace CHIP8
 {
-    int ReadFileIntoBuffer(FILE *file, uint8_t **buffer, uint32_t *size);
+    int ReadFileIntoBuffer(FILE *file, uint8_t **buffer, off_t *size);
 }

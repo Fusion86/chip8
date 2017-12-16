@@ -1,6 +1,7 @@
-#include "chip8/chip8.h"
-#include "chip8/emulator.h"
-#include "chip8/font.h"
+#include <chip8/chip8.h>
+#include <chip8/disassembler.h>
+#include <chip8/emulator.h>
+#include <chip8/font.h>
 
 #include <chrono>
 #include <math.h>
@@ -28,7 +29,7 @@ namespace CHIP8
 
         int CHIP8Emulator::Initialize(bool load_font)
         {
-            ADD_LOG("[info] [chip8emulator] Initializing emulator...\n");
+            ADD_LOG("[chip8emulator] Initializing emulator...\n");
 
             // Opcode = 0;
             memset(Memory, 0, sizeof(Memory));
@@ -57,33 +58,33 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            ADD_LOG("[info] [chip8emulator] Initialized emulator.\n");
+            ADD_LOG("[chip8emulator] Initialized emulator.\n");
 
             return 0;
         }
 
-        int CHIP8Emulator::LoadGame(uint8_t *buffer, uint32_t buffer_size)
+        int CHIP8Emulator::LoadGame(uint8_t *buffer, off_t buffer_size)
         {
             if (HasGameLoaded)
             {
                 Initialize(); // Reset if game is loaded (a reset is not needed if no game/rom is loaded)
             }
 
-            ADD_LOG("[info] [loadgame] Loading rom...");
+            ADD_LOG("[loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
-            ADD_LOG(" OK (size %lu)\n", buffer_size);
+            ADD_LOG(" OK (size %lli)\n", buffer_size);
 
             Pc = PC_START;
             HasGameLoaded = true;
 
-            ADD_LOG("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
+            ADD_LOG("[loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
             return 0;
         }
 
         int CHIP8Emulator::LoadFont()
         {
-            ADD_LOG("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
+            ADD_LOG("[loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
             memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
             ADD_LOG(" OK\n");
             return 0;
@@ -97,7 +98,7 @@ namespace CHIP8
             }
 
             uint16_t opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
-            // Opcode = opcode; // Save opcode in class
+            Opcode = opcode; // Save opcode in class
 
             //
             // AsmLog
@@ -106,8 +107,8 @@ namespace CHIP8
             // char asm_str[64];
             // CHIP8::Disassembler::OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
 
-            // ADD_LOG("[debug] [emulatecycle] Opcode: %04X\n", opcode);
-            // ADD_LOG("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
+            // ADD_LOG("[emulatecycle] Opcode: %04X\n", opcode);
+            // ADD_LOG("[emulatecycle] [disassembler] %s\n", asm_str);
 
             //
             // Emulate
@@ -317,7 +318,7 @@ namespace CHIP8
                 return 0;
             default:
             unknown_opcode:
-                ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", opcode);
+                ADD_LOG("[emulatecycle] Unknown opcode (%04X)\n", opcode);
                 return ERR_UNKNOWN_OPCODE;
             }
         }

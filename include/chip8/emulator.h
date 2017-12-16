@@ -23,7 +23,7 @@ namespace CHIP8
             bool DrawFlag; // If true = require redraw
             bool IsRunning;
 
-            // uint16_t Opcode;
+            uint16_t Opcode;
             uint8_t Memory[4096];
             uint8_t V[16];
 
@@ -71,7 +71,7 @@ namespace CHIP8
             ~CHIP8Emulator();
 
             int Initialize(bool load_font = true);
-            int LoadGame(uint8_t *buffer, uint32_t buffer_size);
+            int LoadGame(uint8_t *buffer, off_t buffer_size);
             int LoadFont();
             int EmulateCycleStep();
 
