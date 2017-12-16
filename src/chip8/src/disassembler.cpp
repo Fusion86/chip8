@@ -1,4 +1,5 @@
 #include <chip8/disassembler.h>
+#include <chip8/chip8_opcode_helper.h>
 
 #include <string.h>
 

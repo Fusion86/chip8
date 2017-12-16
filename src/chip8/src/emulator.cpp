@@ -2,6 +2,7 @@
 
 #include <chip8/disassembler.h>
 #include <chip8/font.h>
+#include <chip8/chip8_opcode_helper.h>
 
 #include <chrono>
 #include <math.h>
@@ -17,14 +18,14 @@ namespace CHIP8
             Initialize();
             thread_main = std::thread(&CHIP8Emulator::RunMain, this);
             thread_timers = std::thread(&CHIP8Emulator::RunTimers, this);
-
-            //thread_main.detach();
-            //thread_timers.detach();
         }
 
         CHIP8Emulator::~CHIP8Emulator()
         {
             ShutdownRequested = true;
+
+			thread_main.join();
+			thread_timers.join();
         }
 
         int CHIP8Emulator::Initialize(bool load_font)
