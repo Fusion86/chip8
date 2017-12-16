@@ -18,8 +18,8 @@ namespace CHIP8
             thread_main = std::thread(&CHIP8Emulator::RunMain, this);
             thread_timers = std::thread(&CHIP8Emulator::RunTimers, this);
 
-            thread_main.detach();
-            thread_timers.detach();
+            //thread_main.detach();
+            //thread_timers.detach();
         }
 
         CHIP8Emulator::~CHIP8Emulator()
@@ -58,7 +58,7 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            ADD_LOG("[info] [chip8emulator] Initialized emulator\n");
+            ADD_LOG("[info] [chip8emulator] Initialized emulator.\n");
 
             return 0;
         }

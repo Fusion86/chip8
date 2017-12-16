@@ -34,6 +34,8 @@ void main()
 const char *fragment_shader_source = R""(
 #version 330 core
 out vec4 FragColor;  
+
+uniform sampler2D screen;
   
 void main()
 {
@@ -431,5 +433,8 @@ int main()
 
     // Terminates GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
+
+    delete chip;
+
     return 0;
 }
