@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#include "chip8/chip8.h"
+#include <chip8/chip8.h>
 
 namespace CHIP8
 {

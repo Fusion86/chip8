@@ -4,8 +4,8 @@
 
 #include "stdio.h"
 
-#include "chip8/chip8.h"
-#include "chip8/disassembler.h"
+#include <chip8/chip8.h>
+#include <chip8/disassembler.h>
 
 using namespace std;
 

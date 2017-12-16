@@ -1,7 +1,7 @@
-#include "chip8/emulator.h"
+#include <chip8/emulator.h>
 
-#include "chip8/disassembler.h"
-#include "chip8/font.h"
+#include <chip8/disassembler.h>
+#include <chip8/font.h>
 
 #include <chrono>
 #include <math.h>
@@ -255,6 +255,7 @@ namespace CHIP8
                         }
                     }
                 }
+                DrawFlag = true;
                 Pc += 2;
                 return 0;
             case 0xE000:
