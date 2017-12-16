@@ -1,6 +1,7 @@
 # chip8
 
-Text about what this is...
+This is the PC build (which currently doesn't render the screen).
+Check out the [Nintendo 3DS version](https://github.com/Fusion86/chip8/tree/3ds) to see a more complete project.
 
 
 ## Compiling
