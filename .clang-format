@@ -1,8 +1,26 @@
 UseTab: Never
 IndentWidth: 4
-BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: true
 IndentCaseLabels: false
 ColumnLimit: 0
+NamespaceIndentation: All
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
+CompactNamespaces: true
+PointerAlignment: Right
+SortIncludes: false
+Cpp11BracedListStyle: false
+AlignTrailingComments: false
 FixNamespaceComments: true
-NamespaceIndentation: Inner
