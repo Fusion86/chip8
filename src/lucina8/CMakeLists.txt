@@ -14,4 +14,7 @@ add_definitions(-Dlucina8_VERSION="${lucina8_VERSION}")
 
 add_3dsx_target(lucina8)
 
-configure_file(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../build/lucina8/lucina8.3dsx ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../bin/lucina8.3dsx COPYONLY)
+add_custom_command(
+    TARGET lucina8_3dsx POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lucina8.* ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)

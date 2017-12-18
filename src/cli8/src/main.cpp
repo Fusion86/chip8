@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "stdio.h"
+#include <stdio.h>
 
 #include <chip8/chip8.h>
 #include <chip8/disassembler.h>
@@ -40,9 +40,9 @@ int main(int argc, char **argv)
         }
 
         uint8_t *buffer; // Remember to free()
-        uint32_t buffer_size;
+        size_t buffer_size;
         CHIP8::ReadFileIntoBuffer(file, &buffer, &buffer_size);
-        printf("Loaded: %s\nROM size: %u bytes\n", argv[2], buffer_size);
+        printf("Loaded: %s\nROM size: %zu bytes\n", argv[2], buffer_size);
 
         std::vector<uint16_t> missing_opcodes;
         CHIP8::Disassembler::Disassemble(stdout, buffer, buffer_size, &missing_opcodes);

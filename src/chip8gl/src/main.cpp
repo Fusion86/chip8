@@ -95,8 +95,8 @@ int main()
     ImGui_ImplGlfwGL3_Init(window, true);
 
     // Link ImGui objects with emulator
-    chip->SetAsmLog(&widget_log);
-    chip->SetWindowContext(window);
+    // chip->SetAsmLog(&widget_log);
+    // chip->SetWindowContext(window);
 
     //
     // Main Loop
