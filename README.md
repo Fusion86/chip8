@@ -1,19 +1,33 @@
 # chip8
 
-This is the PC build (which currently doesn't render the screen).  
+This is the PC build (which currently doesn't render the screen).
 Check out the [Nintendo 3DS version](https://github.com/Fusion86/chip8/tree/3ds) to see a more complete project.
+
+
+## Supported platforms
+
+- Windows, Linux & MacOS
+- Nintendo 3DS
 
 
 ## Compiling
 
-Create buildfiles (usually Unix Makefiles)
+Create PC buildfiles
 ```sh
 mkdir build
 cd build
 cmake ../src
 ```
 
-### Linux/MacOS
+Create Nintendo 3DS buildfiles
+```sh
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=DevkitArm3DS.cmake ../src/
+```
+
+
+### Linux/MacOS & 3DS
 
 Just run `make` in the build directory.
 
@@ -30,10 +44,17 @@ You can download a few roms from [Zophar's Domain](https://www.zophar.net/pdroms
 
 ## Keypad
 
-The CHIP-8 has a keypad with 16 buttons (1,2...8,9,A,B,C,D,E,F).  
+The CHIP-8 has a keypad with 16 buttons (1,2...8,9,A,B,C,D,E,F).
+
+### PC
+
 The red letters are the keys on your keyboard that are bound to the CHIP-8 keypad.
 
 ![Keypad](img/keypad.png)
+
+### Nintendo 3DS
+
+...
 
 
 ## References
