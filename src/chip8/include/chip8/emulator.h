@@ -60,8 +60,8 @@ namespace CHIP8
           private:
             bool ShutdownRequested;
 
-            std::function<bool(uint8_t keycode)> f_GetKeyDown;
-            std::function<void(std::string str)> f_LogWrite;
+            std::function<bool(uint8_t keycode)> GetKeyDownCallback;
+            std::function<void(std::string str)> LogWriteCallback;
 
             int EmulateCycle(uint16_t opcode);
             bool GetKeyDown(uint8_t keycode);
