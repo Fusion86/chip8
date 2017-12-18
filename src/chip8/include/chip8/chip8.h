@@ -5,5 +5,5 @@
 
 namespace CHIP8
 {
-    int LoadRom(FILE *file, uint8_t **buffer, uint32_t *size);
+    int ReadFileIntoBuffer(FILE *file, uint8_t **buffer, size_t *size);
 }

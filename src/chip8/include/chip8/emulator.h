@@ -2,10 +2,7 @@
 
 #include <stdint.h>
 #include <thread>
-
-#include <GLFW/glfw3.h>
-
-#include "../../chip8gl/include/imgui_applog.h"
+#include <functional>
 
 #define ERR_ALREADY_RUNNING 1
 #define ERR_UNKNOWN_OPCODE 2
@@ -13,11 +10,10 @@
 #define PC_START 0x200
 #define FONT_OFFSET 0
 
-#define ADD_LOG(fmt, ...)                     \
-    if (m_AsmLog != nullptr)                  \
-    {                                         \
-        m_AsmLog->AddLog(fmt, ##__VA_ARGS__); \
-    }
+#define LOG_DEBUG(fmt, ...) LogWrite("DEBUG", fmt, ##__VA_ARGS__);
+#define LOG_INFO(fmt, ...) LogWrite("INFO", fmt, ##__VA_ARGS__);
+#define LOG_WARNING(fmt, ...) LogWrite("WARNING", fmt, ##__VA_ARGS__);
+#define LOG_ERROR(fmt, ...) LogWrite("ERROR", fmt, ##__VA_ARGS__);
 
 namespace CHIP8
 {
@@ -46,52 +42,31 @@ namespace CHIP8
             uint8_t DelayTimer;
             uint8_t SoundTimer;
 
-            int KeyMap[16] = {
-                GLFW_KEY_X,
-                GLFW_KEY_1,
-                GLFW_KEY_2,
-                GLFW_KEY_3,
-
-                GLFW_KEY_4,
-                GLFW_KEY_5,
-                GLFW_KEY_6,
-                GLFW_KEY_7,
-
-                GLFW_KEY_8,
-                GLFW_KEY_9,
-                GLFW_KEY_Z,
-                GLFW_KEY_C,
-
-                GLFW_KEY_4,
-                GLFW_KEY_R,
-                GLFW_KEY_F,
-                GLFW_KEY_V
-            };
-
           private:
-            AppLog *m_AsmLog = nullptr;
-            GLFWwindow *m_pWindow = nullptr;
+#ifndef _3DS
             std::thread thread_main;
             std::thread thread_timers;
+#endif
 
           public:
             CHIP8Emulator();
             ~CHIP8Emulator();
 
             int Initialize(bool load_font = true);
-            int LoadGame(uint8_t *buffer, uint32_t buffer_size);
+            int LoadGame(uint8_t *buffer, size_t buffer_size);
             int LoadFont();
             int EmulateCycleStep();
-
-            bool GetKeyDown(uint8_t keycode);
-
-            int SetAsmLog(AppLog *ptr);
-            int SetWindowContext(GLFWwindow *window);
 
           private:
             bool ShutdownRequested;
 
+            std::function<bool(uint8_t keycode)> f_GetKeyDown;
+            std::function<void(std::string str)> f_LogWrite;
+
             int EmulateCycle(uint16_t opcode);
+            bool GetKeyDown(uint8_t keycode);
+            void LogWrite(const char *level, const char *fmt, ...);
+
             int RunMain();
             int RunTimers();
         };

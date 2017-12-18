@@ -179,9 +179,9 @@ int main()
                         else
                         {
                             uint8_t *buffer;
-                            uint32_t buffer_size;
+                            size_t buffer_size;
 
-                            CHIP8::LoadRom(file, &buffer, &buffer_size);
+                            CHIP8::ReadFileIntoBuffer(file, &buffer, &buffer_size);
                             chip->LoadGame(buffer, buffer_size);
 
                             fclose(file);

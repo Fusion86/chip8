@@ -16,21 +16,25 @@ namespace CHIP8
         CHIP8Emulator::CHIP8Emulator()
         {
             Initialize();
+#ifndef _3DS
             thread_main = std::thread(&CHIP8Emulator::RunMain, this);
             thread_timers = std::thread(&CHIP8Emulator::RunTimers, this);
+#endif
         }
 
         CHIP8Emulator::~CHIP8Emulator()
         {
             ShutdownRequested = true;
 
-			thread_main.join();
-			thread_timers.join();
+#ifndef _3DS
+            thread_main.join();
+            thread_timers.join();
+#endif
         }
 
         int CHIP8Emulator::Initialize(bool load_font)
         {
-            ADD_LOG("[info] [chip8emulator] Initializing emulator...\n");
+            LOG_INFO("[info] [chip8emulator] Initializing emulator...\n");
 
             Opcode = 0;
             memset(Memory, 0, sizeof(Memory));
@@ -59,35 +63,35 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            ADD_LOG("[info] [chip8emulator] Initialized emulator.\n");
+            LOG_INFO("[info] [chip8emulator] Initialized emulator.\n");
 
             return 0;
         }
 
-        int CHIP8Emulator::LoadGame(uint8_t *buffer, uint32_t buffer_size)
+        int CHIP8Emulator::LoadGame(uint8_t *buffer, size_t buffer_size)
         {
             if (HasGameLoaded)
             {
                 Initialize(); // Reset if game is loaded (a reset is not needed if no game/rom is loaded)
             }
 
-            ADD_LOG("[info] [loadgame] Loading rom...");
+            LOG_INFO("[info] [loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
-            ADD_LOG(" OK (size %d)\n", buffer_size);
+            LOG_INFO(" OK (size %d)\n", buffer_size);
 
             Pc = PC_START;
             HasGameLoaded = true;
 
-            ADD_LOG("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
+            LOG_INFO("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
             return 0;
         }
 
         int CHIP8Emulator::LoadFont()
         {
-            ADD_LOG("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
+            LOG_INFO("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
             memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
-            ADD_LOG(" OK\n");
+            LOG_INFO(" OK\n");
             return 0;
         }
 
@@ -108,31 +112,14 @@ namespace CHIP8
             char asm_str[64];
             CHIP8::Disassembler::OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
 
-            // ADD_LOG("[debug] [emulatecycle] Opcode: %04X\n", opcode);
-            ADD_LOG("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
+            // LOG_INFO("[debug] [emulatecycle] Opcode: %04X\n", opcode);
+            LOG_INFO("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
 
             //
             // Emulate
             //
 
             return EmulateCycle(opcode);
-        }
-
-        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
-        {
-            return glfwGetKey(m_pWindow, KeyMap[keycode]) == GLFW_PRESS;
-        }
-
-        int CHIP8Emulator::SetAsmLog(AppLog *ptr)
-        {
-            m_AsmLog = ptr;
-            return 0;
-        }
-
-        int CHIP8Emulator::SetWindowContext(GLFWwindow *window)
-        {
-            m_pWindow = window;
-            return 0;
         }
 
         int CHIP8Emulator::EmulateCycle(uint16_t opcode)
@@ -330,9 +317,17 @@ namespace CHIP8
                 return 0;
             default:
             unknown_opcode:
-                ADD_LOG("[debug] [emulatecycle] Unknown opcode (%04X)\n", Opcode);
+                LOG_DEBUG("[debug] [emulatecycle] Unknown opcode (%04X)\n", Opcode);
                 return ERR_UNKNOWN_OPCODE;
             }
+        }
+
+        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
+        {
+        }
+
+        void CHIP8Emulator::LogWrite(const char *level, const char *fmt, ...)
+        {
         }
 
         //
@@ -354,7 +349,9 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
+#ifndef _3DS
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+#endif
                     continue;
                 }
 
@@ -366,7 +363,10 @@ namespace CHIP8
                     IsRunning = false;
                 }
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(2)); // TODO: This is most likely not accurate
+#ifndef _3DS
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+#endif
+                // TODO: This is most likely not accurate
             }
 
             // TODO: Probably a leak here
@@ -380,7 +380,9 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
+#ifndef _3DS
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+#endif
                     continue;
                 }
 
@@ -390,7 +392,10 @@ namespace CHIP8
                 if (SoundTimer > 0)
                     SoundTimer--;
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60)); // TODO: This is most likely not accurate
+#ifndef _3DS
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
+#endif
+                // TODO: This is most likely not accurate
             }
 
             // TODO: Probably a leak here

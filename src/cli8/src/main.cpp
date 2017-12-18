@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
         uint8_t *buffer; // Remember to free()
         uint32_t buffer_size;
-        CHIP8::LoadRom(file, &buffer, &buffer_size);
+        CHIP8::ReadFileIntoBuffer(file, &buffer, &buffer_size);
         printf("Loaded: %s\nROM size: %u bytes\n", argv[2], buffer_size);
 
         std::vector<uint16_t> missing_opcodes;

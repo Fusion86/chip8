@@ -14,13 +14,13 @@ target_include_directories(chip8 PUBLIC
     PRIVATE src
 )
 
-target_link_libraries(chip8 glfw)
+target_link_libraries(chip8)
 
 install(TARGETS chip8 EXPORT chip8Config
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
-)  # This is for Windows
+) # This is for Windows
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
