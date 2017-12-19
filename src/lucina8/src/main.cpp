@@ -6,6 +6,27 @@
 #include <chip8/chip8.h>
 #include <chip8/emulator.h>
 
+#define SCREEN_SCALE 2
+
+static int KeyMap[16] = {
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+};
+
 static CHIP8::Emulator::CHIP8Emulator *chip = new CHIP8::Emulator::CHIP8Emulator();
 
 static uint32_t kDown, kHeld, pixel;
@@ -57,6 +78,10 @@ int main(int argc, char **argv)
 
     chip->SetLogWriteCallback([&](const char *str) {
         printf("%s", str);
+    });
+
+    chip->SetIsKeyDownCallback([&](uint8_t keycode) {
+        return KeyMap[keycode] & kDown;
     });
 
     uint8_t *buffer;
