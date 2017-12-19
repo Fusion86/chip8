@@ -10,16 +10,32 @@
 #define PC_START 0x200
 #define FONT_OFFSET 0
 
-#define LOG_DEBUG(fmt, ...) LogWrite("debug", fmt, ##__VA_ARGS__);
-#define LOG_INFO(fmt, ...) LogWrite("info", fmt, ##__VA_ARGS__);
-#define LOG_WARNING(fmt, ...) LogWrite("warning", fmt, ##__VA_ARGS__);
-#define LOG_ERROR(fmt, ...) LogWrite("error", fmt, ##__VA_ARGS__);
+#define LOG_DEBUG(fmt, ...) \
+    if (LogLevel <= LoggingLevel::Debug) LogWrite("debug", fmt, ##__VA_ARGS__);
+
+#define LOG_INFO(fmt, ...) \
+    if (LogLevel <= LoggingLevel::Info) LogWrite("info", fmt, ##__VA_ARGS__);
+
+#define LOG_WARNING(fmt, ...) \
+    if (LogLevel <= LoggingLevel::Warning) LogWrite("warning", fmt, ##__VA_ARGS__);
+
+#define LOG_ERROR(fmt, ...) \
+    if (LogLevel <= LoggingLevel::Error) LogWrite("error", fmt, ##__VA_ARGS__);
+
 #define LOG_WRITE(fmt, ...) LogWrite(NULL, fmt, ##__VA_ARGS__);
 
 namespace CHIP8
 {
     namespace Emulator
     {
+        enum class LoggingLevel
+        {
+            Debug,
+            Info,
+            Warning,
+            Error,
+        };
+
         class CHIP8Emulator
         {
           public:
@@ -27,6 +43,7 @@ namespace CHIP8
             bool HasGameLoaded;
             bool DrawFlag; // If true = require redraw
             bool IsRunning;
+            LoggingLevel LogLevel = LoggingLevel::Info;
 
             uint16_t Opcode;
             uint8_t Memory[4096];
