@@ -31,8 +31,8 @@ int main(int argc, char **argv)
     printf("Lucina v%s\n", lucina8_VERSION);
 
     //
-	// Rom load stuff
-	//
+    // Rom load stuff
+    //
 
     FILE *file = fopen("roms/PONG", "rb");
     if (file == NULL)
@@ -42,18 +42,22 @@ int main(int argc, char **argv)
 
         while (aptMainLoop())
         {
-			hidScanInput();
-        	kDown = hidKeysDown();
+            hidScanInput();
+            kDown = hidKeysDown();
 
-			if (kDown & KEY_START) return 0;
+            if (kDown & KEY_START) return 0;
         }
     }
 
-	//
-	// Emulator stuff
-	//
+    //
+    // Emulator stuff
+    //
 
-	chip->Initialize();
+    chip->Initialize();
+
+    chip->SetLogWriteCallback([&](const char *str) {
+        printf("%s", str);
+    });
 
     uint8_t *buffer;
     size_t buffer_size;
@@ -73,7 +77,7 @@ int main(int argc, char **argv)
         kHeld = hidKeysHeld();
 
         if (kDown & KEY_B) paused = !paused;
-		if (kDown & KEY_START) return 0;
+        if (kDown & KEY_START) return 0;
 
         if (!paused)
         {

@@ -8,6 +8,7 @@
 #include <math.h>
 #include <string.h>
 #include <thread>
+#include <stdarg.h>
 
 namespace CHIP8
 {
