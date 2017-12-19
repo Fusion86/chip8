@@ -10,10 +10,11 @@
 #define PC_START 0x200
 #define FONT_OFFSET 0
 
-#define LOG_DEBUG(fmt, ...) LogWrite("DEBUG", fmt, ##__VA_ARGS__);
-#define LOG_INFO(fmt, ...) LogWrite("INFO", fmt, ##__VA_ARGS__);
-#define LOG_WARNING(fmt, ...) LogWrite("WARNING", fmt, ##__VA_ARGS__);
-#define LOG_ERROR(fmt, ...) LogWrite("ERROR", fmt, ##__VA_ARGS__);
+#define LOG_DEBUG(fmt, ...) LogWrite("debug", fmt, ##__VA_ARGS__);
+#define LOG_INFO(fmt, ...) LogWrite("info", fmt, ##__VA_ARGS__);
+#define LOG_WARNING(fmt, ...) LogWrite("warning", fmt, ##__VA_ARGS__);
+#define LOG_ERROR(fmt, ...) LogWrite("error", fmt, ##__VA_ARGS__);
+#define LOG_WRITE(fmt, ...) LogWrite(NULL, fmt, ##__VA_ARGS__);
 
 namespace CHIP8
 {
@@ -43,7 +44,8 @@ namespace CHIP8
             uint8_t SoundTimer;
 
           private:
-#ifndef _3DS
+#ifdef _3DS
+#else
             std::thread thread_main;
             std::thread thread_timers;
 #endif
@@ -57,14 +59,17 @@ namespace CHIP8
             int LoadFont();
             int EmulateCycleStep();
 
+            void SetIsKeyDownCallback(std::function<bool(uint8_t keycode)> f);
+            void SetLogWriteCallback(std::function<void(const char *str)> f);
+
           private:
             bool ShutdownRequested;
 
-            std::function<bool(uint8_t keycode)> GetKeyDownCallback;
-            std::function<void(std::string str)> LogWriteCallback;
+            std::function<bool(uint8_t keycode)> IsKeyDownCallback;
+            std::function<void(const char *str)> LogWriteCallback;
 
             int EmulateCycle(uint16_t opcode);
-            bool GetKeyDown(uint8_t keycode);
+            bool IsKeyDown(uint8_t keycode);
             void LogWrite(const char *level, const char *fmt, ...);
 
             int RunMain();

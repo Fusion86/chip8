@@ -16,7 +16,8 @@ namespace CHIP8
         CHIP8Emulator::CHIP8Emulator()
         {
             Initialize();
-#ifndef _3DS
+#ifdef _3DS
+#else
             thread_main = std::thread(&CHIP8Emulator::RunMain, this);
             thread_timers = std::thread(&CHIP8Emulator::RunTimers, this);
 #endif
@@ -26,7 +27,8 @@ namespace CHIP8
         {
             ShutdownRequested = true;
 
-#ifndef _3DS
+#ifdef _3DS
+#else
             thread_main.join();
             thread_timers.join();
 #endif
@@ -34,7 +36,7 @@ namespace CHIP8
 
         int CHIP8Emulator::Initialize(bool load_font)
         {
-            LOG_INFO("[info] [chip8emulator] Initializing emulator...\n");
+            LOG_INFO("[chip8emulator] Initializing emulator...\n");
 
             Opcode = 0;
             memset(Memory, 0, sizeof(Memory));
@@ -63,7 +65,7 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            LOG_INFO("[info] [chip8emulator] Initialized emulator.\n");
+            LOG_INFO("[chip8emulator] Initialized emulator.\n");
 
             return 0;
         }
@@ -75,23 +77,23 @@ namespace CHIP8
                 Initialize(); // Reset if game is loaded (a reset is not needed if no game/rom is loaded)
             }
 
-            LOG_INFO("[info] [loadgame] Loading rom...");
+            LOG_INFO("[loadgame] Loading rom...");
             memcpy((void *)(Memory + PC_START), buffer, buffer_size);
-            LOG_INFO(" OK (size %d)\n", buffer_size);
+            LOG_WRITE(" OK (size %d)\n", buffer_size);
 
             Pc = PC_START;
             HasGameLoaded = true;
 
-            LOG_INFO("[info] [loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
+            LOG_INFO("[loadgame] Set pc to 0x%04X (%d)\n", Pc, Pc);
 
             return 0;
         }
 
         int CHIP8Emulator::LoadFont()
         {
-            LOG_INFO("[info] [loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
+            LOG_INFO("[loadfont] Loading font starting at 0x%04X (%d)...", FONT_OFFSET, FONT_OFFSET);
             memcpy(Memory + FONT_OFFSET, &FontSet, sizeof(FontSet));
-            LOG_INFO(" OK\n");
+            LOG_WRITE(" OK\n");
             return 0;
         }
 
@@ -113,7 +115,7 @@ namespace CHIP8
             CHIP8::Disassembler::OpcodeToAsmString(opcode, asm_str, sizeof(asm_str));
 
             // LOG_INFO("[debug] [emulatecycle] Opcode: %04X\n", opcode);
-            LOG_INFO("[debug] [emulatecycle] [disassembler] %s\n", asm_str);
+            LOG_DEBUG("[emulatecycle] [disassembler] %s\n", asm_str);
 
             //
             // Emulate
@@ -250,14 +252,14 @@ namespace CHIP8
                 switch (KK)
                 {
                 case 0x9E:
-                    if (GetKeyDown(V[X]))
+                    if (IsKeyDown(V[X]))
                     {
                         Pc += 2;
                     }
                     Pc += 2;
                     return 0;
                 case 0xA1:
-                    if (GetKeyDown(V[X]) == false)
+                    if (IsKeyDown(V[X]) == false)
                     {
                         Pc += 2;
                     }
@@ -322,12 +324,43 @@ namespace CHIP8
             }
         }
 
-        bool CHIP8Emulator::GetKeyDown(uint8_t keycode)
+        void CHIP8Emulator::SetIsKeyDownCallback(std::function<bool(uint8_t keycode)> f)
         {
+            IsKeyDownCallback = f;
+        }
+
+        void CHIP8Emulator::SetLogWriteCallback(std::function<void(const char *str)> f)
+        {
+            LogWriteCallback = f;
+        }
+
+        bool CHIP8Emulator::IsKeyDown(uint8_t keycode)
+        {
+            if (IsKeyDownCallback != nullptr)
+            {
+                return IsKeyDownCallback(keycode);
+            }
+            return false;
         }
 
         void CHIP8Emulator::LogWrite(const char *level, const char *fmt, ...)
         {
+            va_list ap;
+            va_start(ap, fmt);
+
+            char str[1024];
+            int prefix_size = 0;
+
+            if (level != NULL)
+                prefix_size = snprintf(str, sizeof(str), "[%s] ", level);
+
+            vsnprintf(str + prefix_size, sizeof(str) - prefix_size, fmt, ap);
+            va_end(ap);
+
+            if (LogWriteCallback != nullptr)
+            {
+                LogWriteCallback(str);
+            }
         }
 
         //
@@ -349,7 +382,8 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
-#ifndef _3DS
+#ifdef _3DS
+#else
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 #endif
                     continue;
@@ -363,7 +397,8 @@ namespace CHIP8
                     IsRunning = false;
                 }
 
-#ifndef _3DS
+#ifdef _3DS
+#else
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
 #endif
                 // TODO: This is most likely not accurate
@@ -380,7 +415,8 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
-#ifndef _3DS
+#ifdef _3DS
+#else
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 #endif
                     continue;
@@ -392,7 +428,8 @@ namespace CHIP8
                 if (SoundTimer > 0)
                     SoundTimer--;
 
-#ifndef _3DS
+#ifdef _3DS
+#else
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
 #endif
                 // TODO: This is most likely not accurate

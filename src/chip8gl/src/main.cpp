@@ -41,6 +41,28 @@ static char input_sound_timer[8];
 static CHIP8Emulator *chip = new CHIP8Emulator();
 static bool opt_code_step = false; // If false: the code will just run like it normally would on device
 
+static int KeyMap[16] = {
+    GLFW_KEY_X,
+    GLFW_KEY_1,
+    GLFW_KEY_2,
+    GLFW_KEY_3,
+
+    GLFW_KEY_4,
+    GLFW_KEY_5,
+    GLFW_KEY_6,
+    GLFW_KEY_7,
+
+    GLFW_KEY_8,
+    GLFW_KEY_9,
+    GLFW_KEY_Z,
+    GLFW_KEY_C,
+
+    GLFW_KEY_4,
+    GLFW_KEY_R,
+    GLFW_KEY_F,
+    GLFW_KEY_V
+};
+
 static void error_callback(int error, const char *description)
 {
     printf("Error %d: %s\n", error, description);
@@ -97,6 +119,14 @@ int main()
     // Link ImGui objects with emulator
     // chip->SetAsmLog(&widget_log);
     // chip->SetWindowContext(window);
+
+    chip->SetLogWriteCallback([&](const char *str) {
+        widget_log.AddLog("%s", str);
+    });
+
+    chip->SetIsKeyDownCallback([&](uint8_t keycode) {
+        return glfwGetKey(window, KeyMap[keycode]) == GLFW_PRESS;
+    });
 
     //
     // Main Loop
