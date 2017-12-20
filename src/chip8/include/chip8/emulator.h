@@ -61,8 +61,7 @@ namespace CHIP8
             uint8_t SoundTimer;
 
           private:
-#ifdef _3DS
-#else
+#ifndef _3DS
             std::thread thread_main;
             std::thread thread_timers;
 #endif
@@ -89,8 +88,10 @@ namespace CHIP8
             bool IsKeyDown(uint8_t keycode);
             void LogWrite(const char *level, const char *fmt, ...);
 
+#ifndef _3DS
             int RunMain();
             int RunTimers();
+#endif
         };
     } // namespace Emulator
 } // namespace CHIP8

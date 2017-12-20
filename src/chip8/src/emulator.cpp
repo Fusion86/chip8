@@ -364,12 +364,13 @@ namespace CHIP8
             }
         }
 
-        //
-        // Thread Code
-        //
-        // This is not accurate at all, and both threads will also not run in sync (esp. when stopped and resumed)
-        //
+            //
+            // Thread Code
+            //
+            // This is not accurate at all, and both threads will also not run in sync (esp. when stopped and resumed)
+            //
 
+#ifndef _3DS
         int CHIP8Emulator::RunMain()
         {
             if (IsRunning)
@@ -383,10 +384,7 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
-#ifdef _3DS
-#else
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#endif
                     continue;
                 }
 
@@ -398,10 +396,7 @@ namespace CHIP8
                     IsRunning = false;
                 }
 
-#ifdef _3DS
-#else
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
-#endif
                 // TODO: This is most likely not accurate
             }
 
@@ -416,10 +411,7 @@ namespace CHIP8
             {
                 if (!IsRunning)
                 {
-#ifdef _3DS
-#else
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#endif
                     continue;
                 }
 
@@ -429,10 +421,7 @@ namespace CHIP8
                 if (SoundTimer > 0)
                     SoundTimer--;
 
-#ifdef _3DS
-#else
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
-#endif
                 // TODO: This is most likely not accurate
             }
 
@@ -440,5 +429,6 @@ namespace CHIP8
 
             return 0;
         }
+#endif
     } // namespace Emulator
 } // namespace CHIP8
