@@ -81,7 +81,7 @@ int main(int argc, char **argv)
     });
 
     chip->SetIsKeyDownCallback([](uint8_t keycode) {
-        return KeyMap[keycode] & kDown; // FIXME:
+        return KeyMap[keycode] & kDown || KeyMap[keycode] & kHeld; // FIXME:
     });
 
     uint8_t *buffer;
