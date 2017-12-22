@@ -31,8 +31,9 @@ static CHIP8::Emulator::CHIP8Emulator *chip = new CHIP8::Emulator::CHIP8Emulator
 
 static uint32_t kDown, kHeld;
 static uint32_t frame_count = 0;
-static uint32_t cycles = 0;
+static uint32_t ticks = 0;
 static bool paused = true;
+static uint8_t cyclesPerTick = 8;
 
 void setPixel(u8 *fb, u16 x, u16 y, u8 red, u8 green, u8 blue)
 {
@@ -95,6 +96,7 @@ int main(int argc, char **argv)
 
     printf("Starting emulation!\n");
 
+    // This loop runs at roughly 80 tps in citra on my Macbook
     while (aptMainLoop())
     {
         hidScanInput();
@@ -106,12 +108,13 @@ int main(int argc, char **argv)
 
         if (!paused)
         {
-            chip->EmulateCycleStep();
+            for (int i = 0; i < cyclesPerTick; i++)
+                chip->EmulateCycleStep();
 
             // Make accurate
             chip->DelayTimer--;
             chip->SoundTimer--;
-            cycles++;
+            ticks++;
         }
 
         if (chip->DrawFlag == true)
@@ -127,14 +130,15 @@ int main(int argc, char **argv)
                 }
             }
             chip->DrawFlag = false;
-            // printf("Frame: %lu    Cycles: %lu\n", frame_count++, cycles);
-            cycles = 0;
 
             gfxFlushBuffers();
             gfxSwapBuffers();
 
             gspWaitForVBlank();
         }
+
+        if (ticks > 60 && ticks % 60 == 0)
+            printf("%i\n", ticks / 60);
     }
 
     gfxExit();
