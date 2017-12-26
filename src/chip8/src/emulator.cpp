@@ -387,10 +387,9 @@ namespace CHIP8
                     continue;
                 }
 
-                opcode = Memory[Pc] << 8 | Memory[Pc + 1]; // lowercase because our macro function uses 'opcode'
-                Opcode = opcode; // Save opcode in class
+                Opcode = Memory[Pc] << 8 | Memory[Pc + 1];
 
-                if (EmulateCycle(opcode) != 0)
+                if (EmulateCycle(Opcode) != 0)
                 {
                     IsRunning = false;
                 }
