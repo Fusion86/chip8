@@ -16,7 +16,6 @@ namespace CHIP8
     {
         CHIP8Emulator::CHIP8Emulator()
         {
-            Initialize();
 #ifdef _3DS
 #else
             thread_main = std::thread(&CHIP8Emulator::RunMain, this);
@@ -66,7 +65,7 @@ namespace CHIP8
 
             DrawFlag = false;
 
-            LOG_INFO("[chip8emulator] Initialized emulator.\n");
+            LOG_INFO("[chip8emulator] Initialized emulator\n");
 
             return 0;
         }

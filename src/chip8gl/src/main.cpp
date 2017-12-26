@@ -128,6 +128,8 @@ int main()
         return glfwGetKey(window, KeyMap[keycode]) == GLFW_PRESS;
     });
 
+    chip->Initialize();
+
     //
     // Main Loop
     //
