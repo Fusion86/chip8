@@ -1,7 +1,7 @@
 # chip8
 
-This is the PC build (which currently doesn't render the screen).
-Check out the [Nintendo 3DS version](https://github.com/Fusion86/chip8/tree/3ds) to see a more complete project.
+The PC build currently doesn't render the screen, but the 3DS version does (iirc).  
+I mainly built this to learn more about emulation, which I did. I might even finish this sometime.
 
 
 ## Supported platforms
@@ -29,7 +29,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=DevkitArm3DS.cmake ../src/
 
 ### Linux/MacOS & 3DS
 
-Just run `make` in the build directory.
+Just run `make` in the build directory. Also requires devkitARM.
 
 ### Windows
 
