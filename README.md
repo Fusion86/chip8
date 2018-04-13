@@ -6,8 +6,8 @@ I mainly built this to learn more about emulation, which I did. I might even fin
 
 ## Supported platforms
 
-- Windows, Linux & MacOS
-- Nintendo 3DS
+- Windows, Linux & MacOS (chip8gl)
+- Nintendo 3DS (lucina8)
 
 
 ## Compiling
