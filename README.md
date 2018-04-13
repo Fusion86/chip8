@@ -39,7 +39,7 @@ You'll have to set the working directory to `..\..\bin\Debug` for chip8gl (for i
 
 ## Roms
 
-You can download a few roms from [Zophar's Domain](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html)
+You can download a few roms from [Zophar's Domain](https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html).
 
 
 ## Keypad
