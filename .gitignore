@@ -3,5 +3,5 @@ bin/
 build/
 
 # VSCode
-.cmaketools.json
-settings.json
+!.vscode/launch.json
+.vscode/
